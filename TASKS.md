@@ -33,12 +33,16 @@
 
 ## P4 · Mac 打包（2-3 天）
 
-- [ ] **T4.1** 应用图标设计（1024x1024 PNG + icns）
-- [ ] **T4.2** tauri.conf.json 配置（应用名 / 版本 / 图标）
-- [ ] **T4.3** Mac `.app` 构建 + 调试
-- [ ] **T4.4** Mac `.dmg` 打包脚本
-- [ ] **T4.5** 菜单栏常驻（system_tray plugin）
-- [ ] **T4.6** dock 图标隐藏（accessory 模式）
+- [x] **T4.1** 应用图标（暂用 Tauri 默认）
+- [x] **T4.2** tauri.conf.json 配置
+- [x] **T4.3** Mac `.app` 构建
+- [x] **T4.4** Mac `.dmg` 打包
+- [x] **T4.5** 菜单栏常驻（tray-icon plugin）
+- [x] **T4.6** dock 图标隐藏（accessory 模式）
+
+打包产物：
+- `src-tauri/target/release/bundle/macos/Time To Slack Off.app` (10 MB)
+- `src-tauri/target/release/bundle/dmg/Time To Slack Off_0.1.0_aarch64.dmg` (3 MB)
 
 ## P5 · Win 打包（2-3 天）
 
@@ -73,6 +77,6 @@
 | P1 MVP | ⏳ 未开始 | - | - |
 | P2 节假日 | ⏳ 未开始 | - | - |
 | P3 扩展 tab | ⏳ 未开始 | - | - |
-| P4 Mac 打包 | ⏳ 未开始 | - | - |
+| P4 Mac 打包 | ✅ 已完成 | 2026-08-29 | 7e4bdc3 |
 | P5 Win 打包 | ⏳ 未开始 | - | - |
 | P6 节日主题 | ⏳ 未开始 | - | - |
