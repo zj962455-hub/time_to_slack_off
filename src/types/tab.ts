@@ -24,6 +24,8 @@ export type TabTypeConfig =
   | WeekendConfig
   | SalaryDayConfig
   | HolidayConfig
+  | HourlyConfig
+  | CustomHolidayConfig
   | CustomDateConfig
   | Record<string, never>
 
@@ -39,10 +41,16 @@ export interface HolidayConfig {
   // 默认无配置，使用内置 JSON
 }
 
+export interface HourlyConfig {
+  // 时薪无需额外配置，从 store.salary 读
+}
+
+export interface CustomHolidayConfig {
+  // 自定义假期无需额外配置，从 store.customHolidays 读
+}
+
 export interface CustomDateConfig {
-  date: string // MM-DD（每年循环）或 YYYY-MM-DD（一次性）
-  recurring: boolean // 是否每年循环
-  name?: string
+  // 自定义日期无需额外配置，从 store.customDates 读
 }
 
 // 默认 3 个 tab 的初始配置
@@ -66,4 +74,14 @@ export const DEFAULT_TABS: Omit<TabConfig, "id">[] = [
     enabled: true,
     order: 3,
   },
+]
+
+// 用户可添加的 tab 类型
+export const ADDABLE_TABS: TabType[] = [
+  "weekend",
+  "salary-day",
+  "holiday",
+  "hourly",
+  "custom-holiday",
+  "custom-date",
 ]

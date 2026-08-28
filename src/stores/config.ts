@@ -3,16 +3,32 @@ import { ref } from "vue";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import { DEFAULT_TABS, type TabConfig } from "../types/tab";
 import type { HolidayOverride } from "../utils/holiday";
+import { DEFAULT_SALARY, type SalaryConfig } from "../types/salary";
 
 // 配置文件位于 ~/.local/share/time-to-slack-off/config.json（Tauri 默认）
 // 在 web 环境下 LazyStore 会回退到 localStorage
 const store = new LazyStore("config.json");
+
+export interface CustomHoliday {
+  name: string
+  date: string      // YYYY-MM-DD（一次性）或 MM-DD（循环）
+  recurring: boolean
+}
+
+export interface CustomDate {
+  name: string
+  date: string      // YYYY-MM-DD（一次性）或 MM-DD（循环）
+  recurring: boolean
+}
 
 interface SavedConfig {
   offTime: string
   workdays: number[]
   tabs: TabConfig[]
   holidayOverrides: HolidayOverride[]
+  salary: SalaryConfig
+  customHolidays: CustomHoliday[]
+  customDates: CustomDate[]
 }
 
 function genId(): string {
@@ -32,6 +48,9 @@ const DEFAULT_CONFIG: SavedConfig = {
   workdays: [1, 2, 3, 4, 5],
   tabs: buildDefaultTabs(),
   holidayOverrides: [],
+  salary: { ...DEFAULT_SALARY },
+  customHolidays: [],
+  customDates: [],
 }
 
 export const useConfigStore = defineStore("config", () => {
@@ -39,6 +58,9 @@ export const useConfigStore = defineStore("config", () => {
   const workdays = ref<number[]>([...DEFAULT_CONFIG.workdays])
   const tabs = ref<TabConfig[]>(buildDefaultTabs())
   const holidayOverrides = ref<HolidayOverride[]>([])
+  const salary = ref<SalaryConfig>({ ...DEFAULT_SALARY })
+  const customHolidays = ref<CustomHoliday[]>([])
+  const customDates = ref<CustomDate[]>([])
   const loaded = ref(false)
 
   async function load() {
@@ -51,6 +73,9 @@ export const useConfigStore = defineStore("config", () => {
           tabs.value = saved.tabs
         }
         if (saved.holidayOverrides) holidayOverrides.value = saved.holidayOverrides
+        if (saved.salary) salary.value = { ...DEFAULT_SALARY, ...saved.salary }
+        if (saved.customHolidays) customHolidays.value = saved.customHolidays
+        if (saved.customDates) customDates.value = saved.customDates
       }
     } catch (e) {
       console.warn("[config] load failed, use defaults", e)
@@ -66,6 +91,9 @@ export const useConfigStore = defineStore("config", () => {
         workdays: workdays.value,
         tabs: tabs.value,
         holidayOverrides: holidayOverrides.value,
+        salary: salary.value,
+        customHolidays: customHolidays.value,
+        customDates: customDates.value,
       })
       await store.save()
     } catch (e) {
@@ -75,6 +103,37 @@ export const useConfigStore = defineStore("config", () => {
 
   async function setOffTime(time: string) {
     offTime.value = time
+    await persist()
+  }
+
+  // ===== Salary 操作 =====
+
+  async function updateSalary(patch: Partial<SalaryConfig>) {
+    salary.value = { ...salary.value, ...patch }
+    await persist()
+  }
+
+  // ===== Custom Holiday 操作 =====
+
+  async function addCustomHoliday(item: CustomHoliday) {
+    customHolidays.value.push(item)
+    await persist()
+  }
+
+  async function removeCustomHoliday(index: number) {
+    customHolidays.value.splice(index, 1)
+    await persist()
+  }
+
+  // ===== Custom Date 操作 =====
+
+  async function addCustomDate(item: CustomDate) {
+    customDates.value.push(item)
+    await persist()
+  }
+
+  async function removeCustomDate(index: number) {
+    customDates.value.splice(index, 1)
     await persist()
   }
 
@@ -133,9 +192,17 @@ export const useConfigStore = defineStore("config", () => {
     workdays,
     tabs,
     holidayOverrides,
+    salary,
+    customHolidays,
+    customDates,
     loaded,
     load,
     setOffTime,
+    updateSalary,
+    addCustomHoliday,
+    removeCustomHoliday,
+    addCustomDate,
+    removeCustomDate,
     addTab,
     updateTab,
     removeTab,

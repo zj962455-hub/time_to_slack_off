@@ -4,6 +4,9 @@ import type { TabConfig } from "../types/tab";
 import WeekendTab from "../tabs/WeekendTab.vue";
 import PaydayTab from "../tabs/PaydayTab.vue";
 import HolidayTab from "../tabs/HolidayTab.vue";
+import HourlyTab from "../tabs/HourlyTab.vue";
+import CustomHolidayTab from "../tabs/CustomHolidayTab.vue";
+import CustomDateTab from "../tabs/CustomDateTab.vue";
 
 const props = defineProps<{
   tab: TabConfig
@@ -17,6 +20,12 @@ const component = computed(() => {
       return PaydayTab
     case "holiday":
       return HolidayTab
+    case "hourly":
+      return HourlyTab
+    case "custom-holiday":
+      return CustomHolidayTab
+    case "custom-date":
+      return CustomDateTab
     default:
       return null
   }
