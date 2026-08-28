@@ -41,71 +41,83 @@ const component = computed(() => {
 
 <style scoped>
 .tab-wrapper {
-  padding: 6px 12px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.tab-wrapper:last-child {
-  border-bottom: none;
+  padding: 6px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  text-align: center;
+  background: var(--color-bg-elevated);
+  min-width: 0; /* 允许 grid 收缩 */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .tab-header {
   font-size: 10px;
   opacity: 0.5;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   margin-bottom: 2px;
-  text-transform: uppercase;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-/* 紧凑所有子 tab 内容 */
+/* 横向并排时紧凑所有子 tab 内容 */
 .tab-wrapper :deep(.tab-content) {
-  padding: 2px 0;
+  padding: 0;
 }
 .tab-wrapper :deep(.big-number) {
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1;
 }
 .tab-wrapper :deep(.unit) {
-  font-size: 10px;
+  font-size: 9px;
   margin-top: 2px;
 }
 .tab-wrapper :deep(.label) {
-  font-size: 10px;
-  margin-top: 4px;
+  font-size: 9px;
+  margin-top: 3px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .tab-wrapper :deep(.currency) {
-  font-size: 14px;
+  font-size: 12px;
 }
 .tab-wrapper :deep(.earned-row) {
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 .tab-wrapper :deep(.earned-label) {
-  font-size: 10px;
+  font-size: 9px;
   margin-bottom: 4px;
 }
 .tab-wrapper :deep(.progress-bar) {
-  height: 3px;
-  max-width: 240px;
-  margin: 4px auto;
+  height: 2px;
+  max-width: 100%;
+  margin: 3px 4px;
 }
 .tab-wrapper :deep(.progress-text) {
-  font-size: 11px;
-  margin-top: 4px;
+  font-size: 9px;
+  margin-top: 3px;
 }
 .tab-wrapper :deep(.meta),
 .tab-wrapper :deep(.meta-light) {
-  font-size: 10px;
-  margin-top: 3px;
+  font-size: 9px;
+  margin-top: 2px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .tab-wrapper :deep(.multiplier) {
-  font-size: 10px;
-  margin-top: 4px;
+  font-size: 9px;
+  margin-top: 3px;
 }
 .tab-wrapper :deep(.empty) {
-  font-size: 12px;
+  font-size: 10px;
 }
 .tab-wrapper :deep(.hint) {
-  font-size: 10px;
+  font-size: 9px;
   margin-top: 2px;
 }
 </style>

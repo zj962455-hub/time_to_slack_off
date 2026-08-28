@@ -19,11 +19,18 @@ const visibleTabs = computed(() => config.enabledTabs());
   <div class="main">
     <button class="settings-btn" @click="showSettings = true" title="设置">⚙</button>
 
-    <Countdown v-if="config.loaded && config.offTime" :off-time="config.offTime" />
+    <!-- 倒计时：固定在最顶部 -->
+    <div class="countdown-zone">
+      <Countdown v-if="config.loaded && config.offTime" :off-time="config.offTime" />
+      <div v-else class="loading">加载中…</div>
+    </div>
 
-    <div v-else class="loading">加载中…</div>
-
-    <div v-if="config.loaded && visibleTabs.length > 0" class="tabs-container">
+    <!-- Tabs：横向并排，居中，大小随数量自适应 -->
+    <div
+      v-if="config.loaded && visibleTabs.length > 0"
+      class="tabs-row"
+      :style="{ '--n': visibleTabs.length }"
+    >
       <Tab v-for="tab in visibleTabs" :key="tab.id" :tab="tab" />
     </div>
 
@@ -36,7 +43,8 @@ const visibleTabs = computed(() => config.enabledTabs());
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 24px 0 12px 0;
+  align-items: center; /* 居中 */
+  padding: 40px 16px 16px;
   position: relative;
 }
 
@@ -55,15 +63,27 @@ const visibleTabs = computed(() => config.enabledTabs());
   opacity: 1;
 }
 
+.countdown-zone {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 16px;
+}
+
 .loading {
   opacity: 0.5;
   font-size: 14px;
   text-align: center;
-  margin-top: 40vh;
 }
 
-.tabs-container {
-  margin-top: 16px;
-  flex: 1;
+.tabs-row {
+  display: grid;
+  /* 列数 = tab 数量；每列等宽，自适应 */
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  max-width: 480px;
+  justify-items: stretch;
+  align-items: stretch;
 }
 </style>
