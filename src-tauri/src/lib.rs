@@ -1,7 +1,7 @@
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    Manager,
+    Emitter, Manager,
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -9,27 +9,58 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::new().build())
         .setup(|app| {
-            // macOS: 设为 accessory（菜单栏常驻，不在 dock）
-            #[cfg(target_os = "macos")]
-            {
-                use tauri::ActivationPolicy;
-                let _ = app.set_activation_policy(ActivationPolicy::Accessory);
+            // macOS: 设为主窗口为桌面 widget 风格
+            if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.set_focusable(false);
+                    let _ = window.set_skip_taskbar(true);
+                    let _ = window.set_visible_on_all_workspaces(true);
+
+                    #[cfg(target_os = "macos")]
+                    {
+                        use objc::runtime::{NO, Object};
+                        use objc::{msg_send, sel, sel_impl};
+
+                        let ns_window = window.ns_window().unwrap() as *mut Object;
+                        unsafe {
+                            // kCGDesktopIconWindowLevel = -2 (桌面图标之上，正常窗口之下)
+                            let _: () = msg_send![ns_window, setLevel: -2i64];
+
+                            // NSWindowCollectionBehavior:
+                            //   1 = CanJoinAllSpaces（所有桌面空间可见）
+                            //   8 = Transient（不在 Mission Control 显示）
+                            let _: () = msg_send![ns_window, setCollectionBehavior: 1u64 | 8u64];
+
+                            // 背景透明 + 无阴影（macOS 透明窗口必须显式）
+                            let _: () = msg_send![ns_window, setOpaque: NO];
+                            let _: () = msg_send![ns_window, setHasShadow: NO];
+                        }
+                    }
             }
 
-            // 托盘菜单
+            // 托盘菜单（保留 P4 实现）
             let show_item = MenuItem::with_id(app, "show", "显示主界面", true, None::<&str>)?;
             let hide_item = MenuItem::with_id(app, "hide", "隐藏主界面", true, None::<&str>)?;
+            let settings_item =
+                MenuItem::with_id(app, "settings", "打开设置", true, None::<&str>)?;
             let quit_item = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&show_item, &hide_item, &quit_item])?;
+            let menu = Menu::with_items(
+                app,
+                &[&show_item, &hide_item, &settings_item, &quit_item],
+            )?;
 
             let _tray = TrayIconBuilder::with_id("main-tray")
                 .icon(app.default_window_icon().unwrap().clone())
                 .tooltip("摸鱼时钟")
                 .menu(&menu)
-                .show_menu_on_left_click(false) // 左键点击直接切换窗口
+                .show_menu_on_left_click(false)
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "show" => toggle_main_window(app, Some(true)),
                     "hide" => toggle_main_window(app, Some(false)),
+                    "settings" => {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.emit("open-settings", ());
+                        }
+                    }
                     "quit" => app.exit(0),
                     _ => {}
                 })
@@ -65,19 +96,8 @@ fn toggle_main_window(app: &tauri::AppHandle, show: Option<bool>) {
 
         if should_show {
             let _ = window.show();
-            let _ = window.set_focus();
-            // macOS accessory 模式下，从隐藏状态显示需要 unhide app
-            #[cfg(target_os = "macos")]
-            {
-                let _ = app.set_activation_policy(tauri::ActivationPolicy::Regular);
-            }
         } else {
             let _ = window.hide();
-            // macOS: 隐藏后回到 accessory 模式（不在 dock）
-            #[cfg(target_os = "macos")]
-            {
-                let _ = app.set_activation_policy(tauri::ActivationPolicy::Accessory);
-            }
         }
     }
 }

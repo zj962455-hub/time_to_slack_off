@@ -41,16 +41,17 @@ const component = computed(() => {
 
 <style scoped>
 .tab-wrapper {
-  padding: 6px 4px;
+  padding: 4px 4px;
   border: 1px solid var(--color-border);
   border-radius: 4px;
   text-align: center;
   background: var(--color-bg-elevated);
-  min-width: 0; /* 允许 grid 收缩 */
+  min-width: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  flex: 1;
 }
 
 .tab-header {

@@ -15,16 +15,19 @@
       {
         "label": "main",
         "title": "摸鱼时钟",
-        "width": 400,
-        "height": 600,
-        "minWidth": 320,
-        "minHeight": 480,
-        "resizable": true,
+        "width": 280,
+        "height": 110,
+        "minWidth": 280,
+        "minHeight": 110,
+        "resizable": false,
         "fullscreen": false,
-        "center": true,
-        "decorations": true,
+        "center": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": false,
         "visible": true,
-        "skipTaskbar": false
+        "skipTaskbar": true,
+        "focus": false
       }
     ],
     "security": {

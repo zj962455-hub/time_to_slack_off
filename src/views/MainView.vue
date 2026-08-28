@@ -4,34 +4,44 @@ import { useConfigStore } from "../stores/config";
 import Countdown from "../components/Countdown.vue";
 import Tab from "../components/Tab.vue";
 import SettingsView from "./SettingsView.vue";
+import { listen } from "@tauri-apps/api/event";
 
 const config = useConfigStore();
 const showSettings = ref(false);
 
 onMounted(async () => {
   await config.load();
+
+  // 监听菜单栏 → "打开设置"
+  await listen("open-settings", () => {
+    showSettings.value = true;
+  });
 });
 
 const visibleTabs = computed(() => config.enabledTabs());
+
+// widget 风格：最多显示前 3 个 tab
+const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
 </script>
 
 <template>
-  <div class="main">
-    <button class="settings-btn" @click="showSettings = true" title="设置">⚙</button>
+  <div class="widget" data-tauri-drag-region>
+    <button
+      class="settings-btn"
+      @click="showSettings = true"
+      title="设置"
+      data-tauri-drag-region="false"
+    >
+      ⚙
+    </button>
 
-    <!-- 倒计时：固定在最顶部 -->
-    <div class="countdown-zone">
+    <div class="widget-body" data-tauri-drag-region>
       <Countdown v-if="config.loaded && config.offTime" :off-time="config.offTime" />
       <div v-else class="loading">加载中…</div>
-    </div>
 
-    <!-- Tabs：横向并排，居中，大小随数量自适应 -->
-    <div
-      v-if="config.loaded && visibleTabs.length > 0"
-      class="tabs-row"
-      :style="{ '--n': visibleTabs.length }"
-    >
-      <Tab v-for="tab in visibleTabs" :key="tab.id" :tab="tab" />
+      <div v-if="config.loaded && widgetTabs.length > 0" class="tabs-strip" data-tauri-drag-region="false">
+        <Tab v-for="tab in widgetTabs" :key="tab.id" :tab="tab" />
+      </div>
     </div>
 
     <SettingsView v-if="showSettings" @close="showSettings = false" />
@@ -39,51 +49,61 @@ const visibleTabs = computed(() => config.enabledTabs());
 </template>
 
 <style scoped>
-.main {
-  min-height: 100vh;
+.widget {
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: drag;
+}
+
+.widget-body {
+  width: 100%;
+  height: 100%;
+  background: rgba(20, 20, 25, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
-  align-items: center; /* 居中 */
-  padding: 40px 16px 16px;
-  position: relative;
+  justify-content: center;
+  -webkit-app-region: no-drag;
 }
 
 .settings-btn {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 8px;
+  right: 8px;
   background: transparent;
   border: none;
-  font-size: 20px;
+  font-size: 14px;
   cursor: pointer;
-  opacity: 0.4;
+  opacity: 0.5;
   transition: opacity 0.2s;
+  -webkit-app-region: no-drag;
+  padding: 4px 6px;
+  z-index: 10;
 }
 .settings-btn:hover {
   opacity: 1;
 }
 
-.countdown-zone {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding-bottom: 16px;
-}
-
 .loading {
   opacity: 0.5;
-  font-size: 14px;
+  font-size: 12px;
   text-align: center;
 }
 
-.tabs-row {
-  display: grid;
-  /* 列数 = tab 数量；每列等宽，自适应 */
-  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-  gap: 6px;
-  width: 100%;
-  max-width: 480px;
-  justify-items: stretch;
-  align-items: stretch;
+.tabs-strip {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  margin-top: 6px;
+  justify-content: space-around;
 }
 </style>
