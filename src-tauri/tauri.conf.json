@@ -10,8 +10,10 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
+        "label": "main",
         "title": "摸鱼时钟",
         "width": 400,
         "height": 600,
@@ -20,7 +22,9 @@
         "resizable": true,
         "fullscreen": false,
         "center": true,
-        "decorations": true
+        "decorations": true,
+        "visible": true,
+        "skipTaskbar": false
       }
     ],
     "security": {
