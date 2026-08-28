@@ -39,8 +39,8 @@ onMounted(async () => {
 
 const visibleTabs = computed(() => config.enabledTabs());
 
-// widget 模式：显示前 3 个 tab
-const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
+// widget 模式：显示所有 tab（字号根据数量自适应）
+const widgetTabs = computed(() => visibleTabs.value);
 </script>
 
 <template>
@@ -67,7 +67,7 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
 
         <div
           v-if="config.loaded && widgetTabs.length > 0"
-          class="tabs-strip"
+          :class="['tabs-strip', `tabs-${Math.min(widgetTabs.length, 5)}`]"
           data-tauri-drag-region="false"
         >
           <Tab v-for="tab in widgetTabs" :key="tab.id" :tab="tab" />
@@ -161,6 +161,31 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
   transform: rotate(45deg);
 }
 
+/* Tab 字号自适应：tab 越多字号越小 */
+.tabs-strip :deep(.big-number) {
+  font-size: clamp(14px, 4vw, 24px) !important;
+}
+.tabs-strip :deep(.currency) {
+  font-size: clamp(10px, 2vw, 14px) !important;
+}
+.tabs-strip :deep(.label),
+.tabs-strip :deep(.unit) {
+  font-size: clamp(8px, 1.5vw, 11px) !important;
+}
+.tabs-strip :deep(.earned-label),
+.tabs-strip :deep(.progress-text),
+.tabs-strip :deep(.meta),
+.tabs-strip :deep(.hint) {
+  font-size: clamp(8px, 1.2vw, 10px) !important;
+}
+.tabs-strip :deep(.empty) {
+  font-size: clamp(9px, 1.5vw, 12px) !important;
+}
+.tabs-strip :deep(.progress-bar) {
+  margin: 2px 4px !important;
+  height: 2px !important;
+}
+
 /* 微动画：widget 启动 / 切换 fade-scale */
 .fade-scale-enter-active,
 .fade-scale-leave-active {
@@ -185,9 +210,9 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
 }
 
 .tabs-strip {
-  display: flex;
-  flex-direction: row;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 2px;
   flex: 1;
   min-height: 0;
   overflow: hidden;
