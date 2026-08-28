@@ -41,9 +41,9 @@ const component = computed(() => {
 
 <style scoped>
 .tab-wrapper {
-  padding: 4px 4px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
+  padding: var(--space-1) var(--space-1);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius);
   text-align: center;
   background: var(--color-bg-elevated);
   min-width: 0;
@@ -52,6 +52,16 @@ const component = computed(() => {
   flex-direction: column;
   justify-content: center;
   flex: 1;
+  transition:
+    border-color var(--duration) var(--ease),
+    transform var(--duration) var(--ease),
+    box-shadow var(--duration) var(--ease);
+}
+
+.tab-wrapper:hover {
+  border-color: var(--color-primary-soft);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .tab-header {
