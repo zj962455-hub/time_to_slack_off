@@ -104,27 +104,27 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
   flex-direction: column;
   gap: var(--space-1);
   padding: var(--space-2) var(--space-3);
-  background: rgba(30, 30, 35, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30, 30, 35, 0.88);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 16px;
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.1) inset,
-    0 10px 40px rgba(0, 0, 0, 0.45),
-    0 2px 8px rgba(0, 0, 0, 0.3);
+    0 0 0 0.5px rgba(0, 0, 0, 0.08),
+    0 12px 36px rgba(0, 0, 0, 0.32),
+    0 4px 12px rgba(0, 0, 0, 0.18);
   -webkit-app-region: no-drag;
   transition: all var(--duration) var(--ease);
 }
 
 @media (prefers-color-scheme: light) {
   .widget-body {
-    background: rgba(245, 245, 247, 0.95);
-    border-color: rgba(0, 0, 0, 0.1);
+    background: rgba(248, 248, 250, 0.92);
+    border-color: rgba(0, 0, 0, 0.08);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.5) inset,
-      0 10px 40px rgba(0, 0, 0, 0.18),
-      0 2px 8px rgba(0, 0, 0, 0.1);
+      0 0 0 0.5px rgba(0, 0, 0, 0.04),
+      0 12px 36px rgba(0, 0, 0, 0.14),
+      0 4px 12px rgba(0, 0, 0, 0.08);
   }
 }
 
@@ -198,14 +198,14 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
   width: 100%;
   height: 100%;
   background: rgba(30, 30, 35, 0.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: saturate(180%) blur(24px);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  border-radius: 16px;
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.1) inset,
-    0 10px 40px rgba(0, 0, 0, 0.45),
-    0 2px 8px rgba(0, 0, 0, 0.3);
+    0 0 0 0.5px rgba(0, 0, 0, 0.08),
+    0 12px 36px rgba(0, 0, 0, 0.32),
+    0 4px 12px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -215,11 +215,11 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
 @media (prefers-color-scheme: light) {
   .settings-mode {
     background: rgba(250, 250, 252, 0.98);
-    border-color: rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.08);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.5) inset,
-      0 10px 40px rgba(0, 0, 0, 0.18),
-      0 2px 8px rgba(0, 0, 0, 0.1);
+      0 0 0 0.5px rgba(0, 0, 0, 0.04),
+      0 12px 36px rgba(0, 0, 0, 0.14),
+      0 4px 12px rgba(0, 0, 0, 0.08);
   }
 }
 </style>
