@@ -1,0 +1,19 @@
+[package]
+name = "time-to-slack-off"
+version = "0.1.0"
+description = "打工人桌面摸鱼小组件 · 距离下班倒计时 + 多 tab"
+authors = ["zj962455-hub"]
+edition = "2021"
+
+[lib]
+name = "time_to_slack_off_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = [] }
+tauri-plugin-store = "2"

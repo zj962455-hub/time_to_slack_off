@@ -1,11 +1,9 @@
 # 依赖
 node_modules/
 dist/
+dist-ssr/
 .pnpm-store/
-
-# Tauri 构建产物
-src-tauri/target/
-src-tauri/gen/
+*.local
 
 # 系统文件
 .DS_Store
@@ -13,16 +11,20 @@ Thumbs.db
 
 # 编辑器
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 *.swp
 *.swo
 *~
 
 # 日志
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
+yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
 # 环境变量
 .env
@@ -35,7 +37,3 @@ coverage/
 # 临时文件
 tmp/
 temp/
-
-# 用户配置（个人设置，不入仓）
-# config.json 暂不入仓，等结构稳定后再决定
-# src-tauri/config.json

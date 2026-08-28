@@ -9,7 +9,7 @@
 - [ ] **T1.3** 设置面板 Settings.vue（下班时间选择）
 - [ ] **T1.4** tauri-plugin-store 集成（配置持久化）
 - [ ] **T1.5** 主界面 Main.vue（倒计时 + tab 占位）
-- [ ] **T1.6** PWA manifest + 添加到桌面支持
+- [ ] **T1.6** ~~PWA manifest~~ ❌ 拍板不做
 - [ ] **T1.7** 基础样式（暗色 + 浅色 + CSS 变量）
 
 ## P2 · 节假日（3-4 天）
