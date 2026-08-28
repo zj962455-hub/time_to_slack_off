@@ -154,6 +154,12 @@ const overtimeDays = config.salary.overtimeDays;
 const leaveDays = config.salary.leaveDays;
 const actualWorkdays = Math.max(0, legalWorkdays + overtimeDays - leaveDays);
 
+// 把 YYYY-MM-DD 格式化成 MM-DD（每年循环时显示）
+function formatMonthDay(iso: string): string {
+  if (iso.length === 10 && iso[4] === "-") return iso.substring(5);
+  return iso;
+}
+
 // ===== Custom Holidays =====
 const newCustomHoliday = ref({ name: "", date: "", recurring: true });
 async function addCustomHolidayItem() {
@@ -335,20 +341,20 @@ async function removeCustomDateItem(idx: number) { await config.removeCustomDate
         <div v-if="config.customHolidays.length > 0" class="custom-list">
           <div v-for="(item, idx) in config.customHolidays" :key="idx" class="custom-row">
             <span class="custom-name">{{ item.name }}</span>
-            <span class="custom-date">{{ item.date }}</span>
+            <span class="custom-date">{{ item.recurring ? formatMonthDay(item.date) : item.date }}</span>
             <span class="custom-tag">{{ item.recurring ? "每年" : "一次性" }}</span>
             <button class="danger" @click="removeCustomHolidayItem(idx)" title="删除">×</button>
           </div>
         </div>
 
         <div class="add-custom">
-          <input type="text" v-model="newCustomHoliday.name" placeholder="名称" />
-          <input type="text" v-model="newCustomHoliday.date" placeholder="MM-DD 或 YYYY-MM-DD" />
-          <label class="checkbox-label">
+          <input type="text" v-model="newCustomHoliday.name" placeholder="名称（如 张三生日）" />
+          <input type="date" v-model="newCustomHoliday.date" />
+          <label class="checkbox-label" title="勾选则每年该日期生效">
             <input type="checkbox" v-model="newCustomHoliday.recurring" />
             每年
           </label>
-          <button @click="addCustomHolidayItem" :disabled="!newCustomHoliday.name || !newCustomHoliday.date">添加</button>
+          <button @click="addCustomHolidayItem" :disabled="!newCustomHoliday.name || !newCustomHoliday.date">+ 添加</button>
         </div>
       </section>
 
@@ -359,20 +365,20 @@ async function removeCustomDateItem(idx: number) { await config.removeCustomDate
         <div v-if="config.customDates.length > 0" class="custom-list">
           <div v-for="(item, idx) in config.customDates" :key="idx" class="custom-row">
             <span class="custom-name">{{ item.name }}</span>
-            <span class="custom-date">{{ item.date }}</span>
+            <span class="custom-date">{{ item.recurring ? formatMonthDay(item.date) : item.date }}</span>
             <span class="custom-tag">{{ item.recurring ? "每年" : "一次性" }}</span>
             <button class="danger" @click="removeCustomDateItem(idx)" title="删除">×</button>
           </div>
         </div>
 
         <div class="add-custom">
-          <input type="text" v-model="newCustomDate.name" placeholder="名称" />
-          <input type="text" v-model="newCustomDate.date" placeholder="MM-DD 或 YYYY-MM-DD" />
-          <label class="checkbox-label">
+          <input type="text" v-model="newCustomDate.name" placeholder="名称（如 结婚纪念日）" />
+          <input type="date" v-model="newCustomDate.date" />
+          <label class="checkbox-label" title="勾选则每年该日期生效">
             <input type="checkbox" v-model="newCustomDate.recurring" />
             每年
           </label>
-          <button @click="addCustomDateItem" :disabled="!newCustomDate.name || !newCustomDate.date">添加</button>
+          <button @click="addCustomDateItem" :disabled="!newCustomDate.name || !newCustomDate.date">+ 添加</button>
         </div>
       </section>
 
