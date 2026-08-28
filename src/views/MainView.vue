@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useConfigStore } from "../stores/config";
 import Countdown from "../components/Countdown.vue";
+import Tab from "../components/Tab.vue";
 import SettingsView from "./SettingsView.vue";
 
 const config = useConfigStore();
@@ -10,6 +11,8 @@ const showSettings = ref(false);
 onMounted(async () => {
   await config.load();
 });
+
+const visibleTabs = computed(() => config.enabledTabs());
 </script>
 
 <template>
@@ -20,6 +23,10 @@ onMounted(async () => {
 
     <div v-else class="loading">加载中…</div>
 
+    <div v-if="config.loaded && visibleTabs.length > 0" class="tabs-container">
+      <Tab v-for="tab in visibleTabs" :key="tab.id" :tab="tab" />
+    </div>
+
     <SettingsView v-if="showSettings" @close="showSettings = false" />
   </div>
 </template>
@@ -29,9 +36,7 @@ onMounted(async () => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
+  padding: 60px 0 20px 0;
   position: relative;
 }
 
@@ -53,5 +58,12 @@ onMounted(async () => {
 .loading {
   opacity: 0.5;
   font-size: 14px;
+  text-align: center;
+  margin-top: 40vh;
+}
+
+.tabs-container {
+  margin-top: 24px;
+  flex: 1;
 }
 </style>
