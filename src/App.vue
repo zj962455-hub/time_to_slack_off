@@ -8,14 +8,14 @@ import MainView from "./views/MainView.vue";
 
 <style>
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-  font-size: 16px;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
   line-height: 1.5;
   color: var(--color-text);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  font-feature-settings: "tnum"; /* 等宽数字 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 * {
@@ -24,12 +24,15 @@ import MainView from "./views/MainView.vue";
   padding: 0;
 }
 
-html, body {
+html,
+body {
   background: transparent;
   overflow: hidden;
 }
 
 body {
   background: transparent !important;
+  -webkit-user-select: none;
+  user-select: none;
 }
 </style>

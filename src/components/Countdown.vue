@@ -64,32 +64,32 @@ const remaining = computed(() => {
 .countdown {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: var(--space-2);
   user-select: none;
   white-space: nowrap;
   min-width: 0;
 }
 
 .label {
-  font-size: 11px;
-  opacity: 0.6;
-  letter-spacing: 0.5px;
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--color-text-muted);
+  letter-spacing: 0.3px;
   white-space: nowrap;
 }
 
 .time {
-  font-size: 28px;
-  font-weight: 200;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 1px;
+  font-size: var(--text-2xl);
+  font-weight: 300;
+  font-feature-settings: "tnum";
+  letter-spacing: 0.5px;
   color: var(--color-primary);
-  font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+  font-family: var(--font-mono);
   line-height: 1;
   white-space: nowrap;
 }
 
 .time.off {
-  color: var(--color-text-muted);
-  opacity: 0.5;
+  color: var(--color-text-subtle);
 }
 </style>
