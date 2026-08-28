@@ -66,6 +66,57 @@ async function moveTab(id: string, dir: "up" | "down") {
   await config.setOffTime(config.offTime);
 }
 
+// ===== 拖拽排序 =====
+const draggedTabId = ref<string | null>(null);
+const dragOverTabId = ref<string | null>(null);
+
+function onDragStart(e: DragEvent, id: string) {
+  draggedTabId.value = id;
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", id);
+  }
+}
+
+function onDragOver(e: DragEvent, id: string) {
+  e.preventDefault();
+  if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+  dragOverTabId.value = id;
+}
+
+function onDragLeave() {
+  // 由 drop /  handle  覆盖
+}
+
+async function onDrop(e: DragEvent, targetId: string) {
+  e.preventDefault();
+  dragOverTabId.value = null;
+  const fromId = draggedTabId.value ?? e.dataTransfer?.getData("text/plain");
+  draggedTabId.value = null;
+  if (!fromId || fromId === targetId) return;
+
+  const sorted = [...config.tabs].sort((a, b) => a.order - b.order);
+  const fromIdx = sorted.findIndex((t) => t.id === fromId);
+  const toIdx = sorted.findIndex((t) => t.id === targetId);
+  if (fromIdx < 0 || toIdx < 0) return;
+
+  // 把 fromIdx 移动到 toIdx 位置
+  const [moved] = sorted.splice(fromIdx, 1);
+  sorted.splice(toIdx, 0, moved);
+
+  // 重排 order
+  sorted.forEach((tab, idx) => {
+    tab.order = idx + 1;
+  });
+
+  await config.setOffTime(config.offTime); // 复用 persist
+}
+
+function onDragEnd() {
+  draggedTabId.value = null;
+  dragOverTabId.value = null;
+}
+
 async function setPayday(id: string, day: number) {
   await config.updateTab(id, { config: { day } as SalaryDayConfig });
 }
@@ -169,7 +220,19 @@ async function removeCustomDateItem(idx: number) { await config.removeCustomDate
       <section class="block">
         <h3>Tab 列表（{{ config.tabs.length }}/5）</h3>
         <div class="tabs-list">
-          <div v-for="tab in [...config.tabs].sort((a, b) => a.order - b.order)" :key="tab.id" class="tab-row">
+          <div
+            v-for="tab in [...config.tabs].sort((a, b) => a.order - b.order)"
+            :key="tab.id"
+            class="tab-row"
+            :class="{ dragging: draggedTabId === tab.id, dragOver: dragOverTabId === tab.id }"
+            draggable="true"
+            @dragstart="(e) => onDragStart(e, tab.id)"
+            @dragover="(e) => onDragOver(e, tab.id)"
+            @dragleave="onDragLeave"
+            @drop="(e) => onDrop(e, tab.id)"
+            @dragend="onDragEnd"
+          >
+            <span class="drag-handle" title="拖拽排序">⋮⋮</span>
             <input
               type="checkbox"
               :checked="tab.enabled"
@@ -462,12 +525,32 @@ input:focus, select:focus {
 }
 .tab-row {
   display: grid;
-  grid-template-columns: auto 1fr auto auto auto;
+  grid-template-columns: auto auto 1fr auto auto auto;
   gap: 8px;
   align-items: center;
   padding: 6px 8px;
   border: 1px solid var(--color-border);
   border-radius: 4px;
+  transition: all 0.15s;
+  cursor: grab;
+}
+.tab-row.dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+.tab-row.dragOver {
+  border-color: var(--color-primary);
+  border-style: dashed;
+}
+.drag-handle {
+  opacity: 0.3;
+  cursor: grab;
+  font-size: 12px;
+  user-select: none;
+  padding: 0 2px;
+}
+.tab-row.dragging .drag-handle {
+  cursor: grabbing;
 }
 .tab-label { min-width: 80px; }
 .tab-type {
@@ -495,7 +578,7 @@ input:focus, select:focus {
   border-color: #dc2626;
 }
 .tab-extra {
-  grid-column: 2 / 6;
+  grid-column: 2 / 7;
   font-size: 12px;
   opacity: 0.7;
   padding-top: 4px;
