@@ -28,7 +28,7 @@ pub fn run() {
 
                     #[cfg(target_os = "macos")]
                     {
-                        use objc::runtime::{NO, Object};
+                        use objc::runtime::{NO, YES, Object};
                         use objc::{msg_send, sel, sel_impl};
 
                         let ns_window = window.ns_window().unwrap() as *mut Object;
@@ -44,6 +44,9 @@ pub fn run() {
                             // 背景透明 + 无阴影（macOS 透明窗口必须显式）
                             let _: () = msg_send![ns_window, setOpaque: NO];
                             let _: () = msg_send![ns_window, setHasShadow: NO];
+
+                            // 透明窗口拖动：必须启用 movableByWindowBackground
+                            let _: () = msg_send![ns_window, setMovableByWindowBackground: YES];
                         }
                     }
             }
