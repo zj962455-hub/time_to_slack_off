@@ -4,6 +4,16 @@ import { useConfigStore } from "../stores/config";
 import { ADDABLE_TABS, type TabConfig, type TabType, type SalaryDayConfig } from "../types/tab";
 import type { SalaryType } from "../types/salary";
 
+// Tab 类型中文标签映射
+const TAB_TYPE_LABELS: Record<TabType, string> = {
+  weekend: "距离周末",
+  "salary-day": "距离发薪",
+  holiday: "距离最近节假日",
+  hourly: "今日已获得时薪",
+  "custom-holiday": "自定义假期",
+  "custom-date": "纪念日",
+};
+
 const emit = defineEmits<{ close: [] }>();
 const config = useConfigStore();
 
@@ -33,17 +43,9 @@ async function toggleWorkday(d: number) {
 
 // ===== Tab 操作 =====
 async function addNewTab(type: TabType) {
-  const labels: Record<TabType, string> = {
-    weekend: "距离周末",
-    "salary-day": "距离发薪",
-    holiday: "距离最近节假日",
-    hourly: "今日时薪",
-    "custom-holiday": "自定义假期",
-    "custom-date": "纪念日",
-  };
   await config.addTab({
     type,
-    label: labels[type],
+    label: TAB_TYPE_LABELS[type],
     enabled: true,
     config: type === "salary-day" ? { day: 15 } : {},
   } as Omit<TabConfig, "id" | "order">);
@@ -280,7 +282,7 @@ async function removeCustomDateItem(idx: number) { await config.removeCustomDate
           <div v-else class="add-tab-picker">
             <span>选择类型：</span>
             <button v-for="t in ADDABLE_TABS" :key="t" @click="addNewTab(t)">
-              {{ t }}
+              {{ TAB_TYPE_LABELS[t] }}
             </button>
             <button @click="showAddTab = false">取消</button>
           </div>

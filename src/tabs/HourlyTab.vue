@@ -25,12 +25,21 @@ const workHoursPerDay = computed(() =>
   calcWorkHoursPerDay(config.salary.startTime, config.offTime)
 );
 
-// 已工作分钟数（今天从 startTime 到 now）
+// 已工作分钟数（今天从 startTime 到 now，cap 在下班时间点）
 const workedMinutes = computed(() => {
   const [sh, sm] = config.salary.startTime.split(":").map(Number);
+  const [oh, om] = config.offTime.split(":").map(Number);
   const start = now.value.hour(sh).minute(sm).second(0).millisecond(0);
-  const diff = now.value.diff(start, "minute");
-  return Math.max(0, diff);
+  const off = now.value.hour(oh).minute(om).second(0).millisecond(0);
+
+  if (now.value.isBefore(start)) return 0;
+
+  // 过了下班时间点：capped 在完整工作时长
+  if (now.value.isAfter(off) || now.value.isSame(off)) {
+    return off.diff(start, "minute");
+  }
+
+  return now.value.diff(start, "minute");
 });
 
 // 已工作小时数（小数）
