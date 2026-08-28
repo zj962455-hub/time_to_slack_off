@@ -71,17 +71,17 @@ const workStartLabel = computed(() => config.salary?.startTime || "09:00");
 }
 
 .label {
-  font-size: 12px;
+  font-size: 11px;
   opacity: 0.6;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   letter-spacing: 1px;
 }
 
 .time {
-  font-size: 56px;
+  font-size: 36px;
   font-weight: 200;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   color: var(--color-primary);
   font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
   line-height: 1;
@@ -93,9 +93,9 @@ const workStartLabel = computed(() => config.salary?.startTime || "09:00");
 }
 
 .hint {
-  font-size: 11px;
+  font-size: 10px;
   opacity: 0.4;
-  margin-top: 6px;
+  margin-top: 4px;
   letter-spacing: 1px;
 }
 </style>

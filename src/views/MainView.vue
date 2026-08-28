@@ -36,7 +36,7 @@ const visibleTabs = computed(() => config.enabledTabs());
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 60px 0 20px 0;
+  padding: 24px 0 12px 0;
   position: relative;
 }
 
@@ -63,7 +63,7 @@ const visibleTabs = computed(() => config.enabledTabs());
 }
 
 .tabs-container {
-  margin-top: 24px;
+  margin-top: 16px;
   flex: 1;
 }
 </style>
