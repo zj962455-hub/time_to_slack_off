@@ -22,8 +22,7 @@ onUnmounted(() => {
 });
 
 /**
- * 判断当前时间是否在上班时间段内（默认 09:00 - 18:00）
- * 仅在这个时间段内显示倒计时；其他时间显示"已下班"
+ * 判断当前时间是否在上班时间段内
  */
 const isWorkPeriod = computed(() => {
   const start = config.salary?.startTime || "09:00";
@@ -46,56 +45,51 @@ const remaining = computed(() => {
   const seconds = diff % 60;
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 });
-
-const workStartLabel = computed(() => config.salary?.startTime || "09:00");
 </script>
 
 <template>
   <div class="countdown">
-    <div class="label">
-      <template v-if="isWorkPeriod">距离下班还有</template>
-      <template v-else>今日已下班</template>
-    </div>
-    <div class="time" :class="{ off: !isWorkPeriod }">
+    <span class="label">
+      <template v-if="isWorkPeriod">距离下班</template>
+      <template v-else>已下班</template>
+    </span>
+    <span class="time" :class="{ off: !isWorkPeriod }">
       <template v-if="isWorkPeriod">{{ remaining }}</template>
       <template v-else>— : — : —</template>
-    </div>
-    <div class="hint">{{ workStartLabel }} – {{ offTime }}</div>
+    </span>
   </div>
 </template>
 
 <style scoped>
 .countdown {
-  text-align: center;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
   user-select: none;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .label {
   font-size: 11px;
   opacity: 0.6;
-  margin-bottom: 4px;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .time {
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 200;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   color: var(--color-primary);
   font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .time.off {
   color: var(--color-text-muted);
   opacity: 0.5;
-}
-
-.hint {
-  font-size: 10px;
-  opacity: 0.4;
-  margin-top: 4px;
-  letter-spacing: 1px;
 }
 </style>

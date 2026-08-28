@@ -5,40 +5,58 @@ import Countdown from "../components/Countdown.vue";
 import Tab from "../components/Tab.vue";
 import SettingsView from "./SettingsView.vue";
 import { listen } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/core";
 
 const config = useConfigStore();
 const showSettings = ref(false);
+
+async function resizeWidget(mode: "small" | "large") {
+  try {
+    await invoke("set_widget_size", { mode });
+  } catch (e) {
+    console.warn("resizeWidget failed:", e);
+  }
+}
+
+async function openSettings() {
+  showSettings.value = true;
+  await resizeWidget("large");
+}
+
+async function closeSettings() {
+  showSettings.value = false;
+  await resizeWidget("small");
+}
 
 onMounted(async () => {
   await config.load();
 
   // 监听菜单栏 → "打开设置"
   await listen("open-settings", () => {
-    showSettings.value = true;
+    openSettings();
   });
 });
 
 const visibleTabs = computed(() => config.enabledTabs());
 
-// widget 风格：最多显示前 3 个 tab
+// widget 模式：显示前 3 个 tab
 const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
 </script>
 
 <template>
   <div class="widget" data-tauri-drag-region>
-    <div class="widget-body" data-tauri-drag-region>
-      <!-- 头部：倒计时 + 设置按钮 -->
-      <div class="widget-header" data-tauri-drag-region="false">
+    <!-- Widget 模式：紧凑 -->
+    <div v-if="!showSettings" class="widget-body" data-tauri-drag-region>
+      <div class="row top-row" data-tauri-drag-region="false">
         <Countdown
           v-if="config.loaded && config.offTime"
           :off-time="config.offTime"
-          class="countdown-compact"
         />
         <div v-else class="loading">加载中…</div>
 
         <button
           class="settings-btn"
-          @click="showSettings = true"
+          @click="openSettings"
           title="设置"
           data-tauri-drag-region="false"
         >
@@ -46,7 +64,6 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
         </button>
       </div>
 
-      <!-- Tab 状态行（最多 3 个）-->
       <div
         v-if="config.loaded && widgetTabs.length > 0"
         class="tabs-strip"
@@ -56,7 +73,10 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
       </div>
     </div>
 
-    <SettingsView v-if="showSettings" @close="showSettings = false" />
+    <!-- 设置模式：全屏 overlay -->
+    <div v-else class="settings-mode">
+      <SettingsView @close="closeSettings" />
+    </div>
   </div>
 </template>
 
@@ -66,15 +86,20 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
   height: 100vh;
   background: transparent;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px;
+  align-items: stretch;
+  justify-content: stretch;
   -webkit-app-region: drag;
+  overflow: hidden;
 }
 
+/* Widget 模式 */
 .widget-body {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
   background: rgba(30, 30, 35, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -84,10 +109,6 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
     0 1px 0 rgba(255, 255, 255, 0.1) inset,
     0 10px 40px rgba(0, 0, 0, 0.45),
     0 2px 8px rgba(0, 0, 0, 0.3);
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   -webkit-app-region: no-drag;
 }
 
@@ -102,28 +123,13 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
   }
 }
 
-.widget-header {
+.top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  flex: 1;
-  min-height: 0;
-}
-
-.countdown-compact {
-  flex: 1;
-  min-width: 0;
-}
-
-.countdown-compact :deep(.time) {
-  font-size: 32px !important;
-  letter-spacing: 1px !important;
-}
-
-.countdown-compact :deep(.label),
-.countdown-compact :deep(.hint) {
-  font-size: 10px !important;
+  flex-shrink: 0;
+  min-height: 32px;
 }
 
 .settings-btn {
@@ -144,14 +150,44 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
 .loading {
   opacity: 0.5;
   font-size: 12px;
-  text-align: center;
 }
 
 .tabs-strip {
   display: flex;
   flex-direction: row;
   gap: 4px;
-  margin-top: 6px;
-  justify-content: space-around;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 设置模式：完全占据 widget */
+.settings-mode {
+  width: 100%;
+  height: 100%;
+  background: rgba(30, 30, 35, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 10px 40px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  -webkit-app-region: no-drag;
+}
+
+@media (prefers-color-scheme: light) {
+  .settings-mode {
+    background: rgba(250, 250, 252, 0.98);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.5) inset,
+      0 10px 40px rgba(0, 0, 0, 0.18),
+      0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 }
 </style>

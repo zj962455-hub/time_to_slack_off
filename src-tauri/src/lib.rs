@@ -1,13 +1,24 @@
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    Emitter, Manager,
+    Emitter, Manager, PhysicalSize,
 };
+
+#[tauri::command]
+fn set_widget_size(window: tauri::WebviewWindow, mode: String) {
+    let size = match mode.as_str() {
+        "small" => PhysicalSize::new(320, 140),
+        "large" => PhysicalSize::new(460, 650),
+        _ => return,
+    };
+    let _ = window.set_size(size);
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::new().build())
+        .invoke_handler(tauri::generate_handler![set_widget_size])
         .setup(|app| {
             // macOS: 设为主窗口为桌面 widget 风格
             if let Some(window) = app.get_webview_window("main") {
