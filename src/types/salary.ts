@@ -8,14 +8,16 @@ export interface SalaryConfig {
   type: SalaryType
   amount: number           // 金额（元）
   startTime: string        // 上班时间 HH:MM（默认 09:00）
-  workdaysPerMonth: number // 每月工作天数（默认 21.75）
+  overtimeDays: number     // 本月加班天数（默认 0）
+  leaveDays: number        // 本月请假天数（默认 0）
 }
 
 export const DEFAULT_SALARY: SalaryConfig = {
   type: "monthly",
   amount: 0,
   startTime: "09:00",
-  workdaysPerMonth: 21.75,
+  overtimeDays: 0,
+  leaveDays: 0,
 }
 
 /**
@@ -31,16 +33,19 @@ export function calcWorkHoursPerDay(startTime: string, offTime: string): number 
 
 /**
  * 计算基础时薪（元/小时）
- * 需要传入 offTime 才能算日工作小时数
+ * 需要传入：
+ * - offTime：下班时间（从 store.offTime）
+ * - actualWorkdays：本月实际工作天数（自动算）
  */
 export function baseHourlyRate(
   salary: SalaryConfig,
-  offTime: string = "18:00"
+  offTime: string = "18:00",
+  actualWorkdays: number = 21.75
 ): number {
   const workHours = calcWorkHoursPerDay(salary.startTime, offTime)
-  if (workHours <= 0) return 0
+  if (workHours <= 0 || actualWorkdays <= 0) return 0
   if (salary.type === "hourly") return salary.amount
   if (salary.type === "daily") return salary.amount / workHours
   // monthly
-  return salary.amount / salary.workdaysPerMonth / workHours
+  return salary.amount / actualWorkdays / workHours
 }

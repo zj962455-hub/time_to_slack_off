@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, computed } from "vue";
 import dayjs from "dayjs";
 import { useConfigStore } from "../stores/config";
 import { baseHourlyRate, calcWorkHoursPerDay } from "../types/salary";
+import { calcActualWorkdays } from "../utils/workdays";
 
 const config = useConfigStore();
 const now = ref(dayjs());
@@ -17,8 +18,32 @@ onUnmounted(() => {
   if (timer) clearInterval(timer);
 });
 
-// 基础时薪（元/小时）—— 从月薪 + 工作小时数自动算
-const hourlyRate = computed(() => baseHourlyRate(config.salary, config.offTime));
+// 本月实际工作天数（自动算）= 法定 + 加班 - 请假
+const actualWorkdays = computed(() =>
+  calcActualWorkdays(
+    now.value.year(),
+    now.value.month() + 1,
+    config.workdays,
+    config.salary.overtimeDays,
+    config.salary.leaveDays
+  )
+);
+
+// 法定工作天数（用于显示）
+const legalWorkdays = computed(() =>
+  calcActualWorkdays(
+    now.value.year(),
+    now.value.month() + 1,
+    config.workdays,
+    0,
+    0
+  )
+);
+
+// 基础时薪（元/小时）—— 从月薪 + 自动工作天数 + 工作小时数算
+const hourlyRate = computed(() =>
+  baseHourlyRate(config.salary, config.offTime, actualWorkdays.value)
+);
 
 // 日工作小时数（自动从 startTime + offTime 算）
 const workHoursPerDay = computed(() =>
@@ -54,8 +79,8 @@ const remainingMinutes = computed(() => {
 // 已获得收入（元）
 const earned = computed(() => hourlyRate.value * workedHours.value);
 
-// 今日预计总收入
-const expectedToday = computed(() => hourlyRate.value * workHoursPerDay.value);
+// 今日预计总收入（保留供 meta 显示用）
+// const expectedToday = computed(() => hourlyRate.value * workHoursPerDay.value);
 
 // 进度（0-1）
 const progress = computed(() => {
@@ -107,10 +132,7 @@ function formatHm(mins: number): string {
       <div class="meta">
         ¥{{ hourlyRate.toFixed(2) }}/h ·
         {{ salaryTypeLabel }} ¥{{ config.salary.amount }} ·
-        {{ config.salary.startTime }}–{{ config.offTime }}
-      </div>
-      <div class="meta-light">
-        今日预计 ¥{{ expectedToday.toFixed(2) }}
+        本月 {{ actualWorkdays }} 天 ({{ legalWorkdays }} 法定 + {{ config.salary.overtimeDays }} 加班 − {{ config.salary.leaveDays }} 请假)
       </div>
     </template>
     <template v-else>

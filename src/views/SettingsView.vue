@@ -141,8 +141,18 @@ async function removeOverrideItem(date: string) { await config.removeOverride(da
 // ===== Salary =====
 async function setSalaryType(t: SalaryType) { await config.updateSalary({ type: t }); }
 async function setSalaryAmount(v: number) { await config.updateSalary({ amount: v }); }
-async function setSalaryWorkdays(v: number) { await config.updateSalary({ workdaysPerMonth: v }); }
+async function setSalaryOvertime(v: number) { await config.updateSalary({ overtimeDays: Math.max(0, v) }); }
+async function setSalaryLeave(v: number) { await config.updateSalary({ leaveDays: Math.max(0, v) }); }
 async function setSalaryStartTime(v: string) { await config.updateSalary({ startTime: v }); }
+
+// 本月预计工作天数（实时计算）
+import { calcLegalWorkdays } from "../utils/workdays";
+import dayjs from "dayjs";
+const now = dayjs();
+const legalWorkdays = calcLegalWorkdays(now.year(), now.month() + 1, config.workdays);
+const overtimeDays = config.salary.overtimeDays;
+const leaveDays = config.salary.leaveDays;
+const actualWorkdays = Math.max(0, legalWorkdays + overtimeDays - leaveDays);
 
 // ===== Custom Holidays =====
 const newCustomHoliday = ref({ name: "", date: "", recurring: true });
@@ -228,11 +238,16 @@ async function removeCustomDateItem(idx: number) { await config.removeCustomDate
           </label>
         </div>
         <details v-if="config.salary.type !== 'hourly'" class="salary-extra">
-          <summary>高级设置</summary>
+          <summary>高级设置（加班 / 请假）</summary>
           <div class="extra-grid">
-            <label>每月工作天数 <input type="number" min="1" max="31" step="0.5" :value="config.salary.workdaysPerMonth" @change="(e) => setSalaryWorkdays(Number((e.target as HTMLInputElement).value))" /></label>
+            <label>加班天数 <input type="number" min="0" step="1" :value="config.salary.overtimeDays" @change="(e) => setSalaryOvertime(Number((e.target as HTMLInputElement).value))" /></label>
+            <label>请假天数 <input type="number" min="0" step="1" :value="config.salary.leaveDays" @change="(e) => setSalaryLeave(Number((e.target as HTMLInputElement).value))" /></label>
           </div>
         </details>
+        <div v-if="config.salary.type !== 'hourly'" class="salary-preview">
+          本月预计工作天数：<strong>{{ actualWorkdays }}</strong> 天
+          （法定 {{ legalWorkdays }} + 加班 {{ overtimeDays }} − 请假 {{ leaveDays }}）
+        </div>
       </section>
 
       <section class="block">
@@ -525,6 +540,20 @@ input:focus, select:focus {
 }
 .salary-time input {
   font-size: 14px;
+}
+
+.salary-preview {
+  margin-top: 12px;
+  padding: 8px 10px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 11px;
+  opacity: 0.85;
+}
+.salary-preview strong {
+  color: var(--color-primary);
+  font-weight: 500;
 }
 
 .salary-extra {
