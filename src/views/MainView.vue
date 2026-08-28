@@ -26,20 +26,32 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
 
 <template>
   <div class="widget" data-tauri-drag-region>
-    <button
-      class="settings-btn"
-      @click="showSettings = true"
-      title="设置"
-      data-tauri-drag-region="false"
-    >
-      ⚙
-    </button>
-
     <div class="widget-body" data-tauri-drag-region>
-      <Countdown v-if="config.loaded && config.offTime" :off-time="config.offTime" />
-      <div v-else class="loading">加载中…</div>
+      <!-- 头部：倒计时 + 设置按钮 -->
+      <div class="widget-header" data-tauri-drag-region="false">
+        <Countdown
+          v-if="config.loaded && config.offTime"
+          :off-time="config.offTime"
+          class="countdown-compact"
+        />
+        <div v-else class="loading">加载中…</div>
 
-      <div v-if="config.loaded && widgetTabs.length > 0" class="tabs-strip" data-tauri-drag-region="false">
+        <button
+          class="settings-btn"
+          @click="showSettings = true"
+          title="设置"
+          data-tauri-drag-region="false"
+        >
+          ⚙
+        </button>
+      </div>
+
+      <!-- Tab 状态行（最多 3 个）-->
+      <div
+        v-if="config.loaded && widgetTabs.length > 0"
+        class="tabs-strip"
+        data-tauri-drag-region="false"
+      >
         <Tab v-for="tab in widgetTabs" :key="tab.id" :tab="tab" />
       </div>
     </div>
@@ -56,38 +68,74 @@ const widgetTabs = computed(() => visibleTabs.value.slice(0, 3));
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 6px;
   -webkit-app-region: drag;
 }
 
 .widget-body {
   width: 100%;
   height: 100%;
-  background: rgba(20, 20, 25, 0.75);
+  background: rgba(30, 30, 35, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  padding: 8px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 10px 40px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   -webkit-app-region: no-drag;
 }
 
+@media (prefers-color-scheme: light) {
+  .widget-body {
+    background: rgba(245, 245, 247, 0.95);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.5) inset,
+      0 10px 40px rgba(0, 0, 0, 0.18),
+      0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+.countdown-compact {
+  flex: 1;
+  min-width: 0;
+}
+
+.countdown-compact :deep(.time) {
+  font-size: 32px !important;
+  letter-spacing: 1px !important;
+}
+
+.countdown-compact :deep(.label),
+.countdown-compact :deep(.hint) {
+  font-size: 10px !important;
+}
+
 .settings-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
   background: transparent;
   border: none;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   opacity: 0.5;
   transition: opacity 0.2s;
   -webkit-app-region: no-drag;
   padding: 4px 6px;
-  z-index: 10;
+  flex-shrink: 0;
 }
 .settings-btn:hover {
   opacity: 1;

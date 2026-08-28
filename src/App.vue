@@ -12,7 +12,6 @@ import MainView from "./views/MainView.vue";
   font-size: 16px;
   line-height: 1.5;
   color: var(--color-text);
-  background-color: var(--color-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -25,7 +24,12 @@ import MainView from "./views/MainView.vue";
   padding: 0;
 }
 
-body {
+html, body {
+  background: transparent;
   overflow: hidden;
+}
+
+body {
+  background: transparent !important;
 }
 </style>
