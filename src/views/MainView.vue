@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useConfigStore } from "../stores/config";
 import Countdown from "../components/Countdown.vue";
 import Tab from "../components/Tab.vue";
 import SettingsView from "./SettingsView.vue";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 
 const config = useConfigStore();
 const showSettings = ref(false);
+const isWindows = ref(/Windows/i.test(navigator.userAgent));
 
 async function resizeWidget(mode: "small" | "large") {
   try {
@@ -28,8 +30,37 @@ async function closeSettings() {
   await resizeWidget("small");
 }
 
+// Win / Linux: pointerdown + startDragging（macOS 用 native drag region）
+async function handleDragStart(e: PointerEvent) {
+  if (e.button !== 0) return;
+  const target = e.target as HTMLElement;
+  // 向上查找 drag region（不在 no-drag 内）
+  let el: HTMLElement | null = target;
+  while (el && el !== document.body) {
+    if (el.dataset.tauriDragRegion === "false") return;
+    if (el.dataset.tauriDragRegion !== undefined) break;
+    el = el.parentElement;
+  }
+  if (!el || el === document.body) return;
+
+  e.preventDefault();
+  try {
+    await getCurrentWebviewWindow().startDragging();
+  } catch (err) {
+    console.warn("startDragging failed:", err);
+  }
+}
+
 onMounted(async () => {
   await config.load();
+
+  // 检测平台
+  isWindows.value = /Windows/i.test(navigator.userAgent);
+
+  // 非 macOS 用 API 拖动
+  if (isWindows.value) {
+    document.addEventListener("pointerdown", handleDragStart);
+  }
 
   // 监听菜单栏 → "打开设置"
   await listen("open-settings", () => {
@@ -37,9 +68,13 @@ onMounted(async () => {
   });
 });
 
-const visibleTabs = computed(() => config.enabledTabs());
+onUnmounted(() => {
+  if (isWindows.value) {
+    document.removeEventListener("pointerdown", handleDragStart);
+  }
+});
 
-// widget 模式：显示所有 tab（字号根据数量自适应）
+const visibleTabs = computed(() => config.enabledTabs());
 const widgetTabs = computed(() => visibleTabs.value);
 </script>
 

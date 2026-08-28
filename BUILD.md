@@ -44,9 +44,40 @@ pnpm tauri build --bundles app,dmg
 
 ## 仅打 Windows（需要 Windows 环境）
 
-```bash
-pnpm tauri build --target x86_64-pc-windows-msvc
+```powershell
+pnpm tauri build
 ```
+
+或仅打 MSI / NSIS：
+
+```powershell
+pnpm tauri build --bundles msi
+pnpm tauri build --bundles nsis
+```
+
+**Win 环境准备：**
+
+1. 装 [Rust](https://rustup.rs) (stable)
+2. 装 Node.js 20+ + pnpm
+3. 装 Visual Studio Build Tools 2022，勾选：
+   - "使用 C++ 的桌面开发"
+   - MSVC v143 生成工具
+   - Windows 11 SDK（或 Windows 10 SDK）
+4. 装 WebView2 Runtime（Win 11 自带；Win 10 需要 [下载](https://developer.microsoft.com/microsoft-edge/webview2/)）
+5. 装 Tauri CLI：
+
+```powershell
+cargo install tauri-cli --version "^2.0.0"
+```
+
+产物：
+- `src-tauri/target/release/time-to-slack-off.exe`（单文件可执行）
+- `src-tauri/target/release/bundle/msi/Time To Slack Off_0.1.0_x64_en-US.msi`（MSI 安装包）
+- `src-tauri/target/release/bundle/nsis/Time To Slack Off_0.1.0_x64-setup.exe`（NSIS 安装器）
+
+**Win 上的 widget 拖动：**
+
+Win 透明窗口用前端 `getCurrentWebviewWindow().startDragging()` API（macOS 用 native drag region）。代码自动检测平台，无需手改。
 
 ## 清理
 
