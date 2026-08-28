@@ -8,7 +8,7 @@
 
 ## 三端支持
 
-- 🖥️ **Mac**：`.app` / `.dmg`（Tauri 打包）
+- 🖥️ **Mac**：`.app` / `.dmg`（Tauri 打包，**桌面 widget 风格**）
 - 🪟 **Windows**：`.exe` / `.msi`（Tauri 打包）
 - 🌐 **Web**：PWA（可"添加到桌面"，体验接近原生）
 

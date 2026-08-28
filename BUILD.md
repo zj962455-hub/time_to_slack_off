@@ -1,12 +1,22 @@
 # 打包
 
+## 窗口模式（macOS 桌面 widget 风格）
+
+应用启动后是一个 **280x110** 的桌面 widget 风格窗口：
+- 透明背景 + 圆角 + 阴影
+- 桌面层（kCGDesktopIconWindowLevel，在桌面图标之上，正常窗口之下）
+- 所有桌面空间可见，不在 Mission Control 显示
+- 不抢焦点（点击穿透到桌面图标）
+- 拖动 widget 移动位置，点击 ⚙ 打开设置
+- 菜单栏图标常驻（右键菜单：显示/隐藏/设置/退出）
+
 ## 开发模式
 
 ```bash
 pnpm tauri dev
 ```
 
-启动 Vite dev server (端口 1420) + 编译运行 Rust 应用。窗口 400x600，标题"摸鱼时钟"，菜单栏图标常驻。
+启动 Vite dev server (端口 1420) + 编译运行 Rust 应用。
 
 ## 发布打包
 
