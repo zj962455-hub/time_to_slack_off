@@ -29,17 +29,6 @@ const actualWorkdays = computed(() =>
   )
 );
 
-// 法定工作天数（用于显示）
-const legalWorkdays = computed(() =>
-  calcActualWorkdays(
-    now.value.year(),
-    now.value.month() + 1,
-    config.workdays,
-    0,
-    0
-  )
-);
-
 // 基础时薪（元/小时）—— 从月薪 + 自动工作天数 + 工作小时数算
 const hourlyRate = computed(() =>
   baseHourlyRate(config.salary, config.offTime, actualWorkdays.value)
@@ -90,13 +79,6 @@ const progress = computed(() => {
 
 const isConfigured = computed(() => config.salary.amount > 0 && workHoursPerDay.value > 0);
 
-const salaryTypeLabel = computed(() => {
-  const t = config.salary.type;
-  if (t === "monthly") return "月薪";
-  if (t === "daily") return "日薪";
-  return "时薪";
-});
-
 // 格式化"X 小时 Y 分"
 function formatHm(mins: number): string {
   const h = Math.floor(mins / 60);
@@ -126,13 +108,6 @@ function formatHm(mins: number): string {
       <div class="progress-text">
         已工作 <strong>{{ formatHm(workedMinutes) }}</strong> /
         剩余 {{ formatHm(remainingMinutes) }}
-      </div>
-
-      <!-- 详细 meta -->
-      <div class="meta">
-        ¥{{ hourlyRate.toFixed(2) }}/h ·
-        {{ salaryTypeLabel }} ¥{{ config.salary.amount }} ·
-        本月 {{ actualWorkdays }} 天 ({{ legalWorkdays }} 法定 + {{ config.salary.overtimeDays }} 加班 − {{ config.salary.leaveDays }} 请假)
       </div>
     </template>
     <template v-else>
