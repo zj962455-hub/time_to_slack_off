@@ -2,8 +2,7 @@
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import dayjs from "dayjs";
 import { useConfigStore } from "../stores/config";
-import { baseHourlyRate } from "../types/salary";
-import { salaryMultiplier } from "../utils/holiday";
+import { baseHourlyRate, calcWorkHoursPerDay } from "../types/salary";
 
 const config = useConfigStore();
 const now = ref(dayjs());
@@ -18,16 +17,44 @@ onUnmounted(() => {
   if (timer) clearInterval(timer);
 });
 
-const baseRate = computed(() => baseHourlyRate(config.salary));
-const multiplier = computed(() => salaryMultiplier(now.value, config.holidayOverrides));
-const currentRate = computed(() => baseRate.value * multiplier.value);
+// 基础时薪（元/小时）—— 从月薪 + 工作小时数自动算
+const hourlyRate = computed(() => baseHourlyRate(config.salary, config.offTime));
 
-const multiplierLabel = computed(() => {
-  const m = multiplier.value;
-  if (m === 3) return "🔴 法定节假日 3x";
-  if (m === 2) return "🟡 周末 2x";
-  return "🟢 工作日 1x";
+// 日工作小时数（自动从 startTime + offTime 算）
+const workHoursPerDay = computed(() =>
+  calcWorkHoursPerDay(config.salary.startTime, config.offTime)
+);
+
+// 已工作分钟数（今天从 startTime 到 now）
+const workedMinutes = computed(() => {
+  const [sh, sm] = config.salary.startTime.split(":").map(Number);
+  const start = now.value.hour(sh).minute(sm).second(0).millisecond(0);
+  const diff = now.value.diff(start, "minute");
+  return Math.max(0, diff);
 });
+
+// 已工作小时数（小数）
+const workedHours = computed(() => workedMinutes.value / 60);
+
+// 剩余分钟数
+const remainingMinutes = computed(() => {
+  const totalMin = workHoursPerDay.value * 60;
+  return Math.max(0, totalMin - workedMinutes.value);
+});
+
+// 已获得收入（元）
+const earned = computed(() => hourlyRate.value * workedHours.value);
+
+// 今日预计总收入
+const expectedToday = computed(() => hourlyRate.value * workHoursPerDay.value);
+
+// 进度（0-1）
+const progress = computed(() => {
+  if (workHoursPerDay.value <= 0) return 0;
+  return Math.min(1, workedHours.value / workHoursPerDay.value);
+});
+
+const isConfigured = computed(() => config.salary.amount > 0 && workHoursPerDay.value > 0);
 
 const salaryTypeLabel = computed(() => {
   const t = config.salary.type;
@@ -36,20 +63,45 @@ const salaryTypeLabel = computed(() => {
   return "时薪";
 });
 
-const isConfigured = computed(() => config.salary.amount > 0);
+// 格式化"X 小时 Y 分"
+function formatHm(mins: number): string {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (h <= 0) return `${m} 分`;
+  if (m <= 0) return `${h} 小时`;
+  return `${h} 小时 ${m} 分`;
+}
 </script>
 
 <template>
   <div class="tab-content">
     <template v-if="isConfigured">
-      <div class="rate-row">
+      <!-- 主显示：已获得时薪 -->
+      <div class="earned-row">
         <span class="currency">¥</span>
-        <span class="big-number">{{ currentRate.toFixed(2) }}</span>
-        <span class="unit">/小时</span>
+        <span class="big-number">{{ earned.toFixed(2) }}</span>
       </div>
-      <div class="multiplier">{{ multiplierLabel }}</div>
+      <div class="earned-label">已获得时薪</div>
+
+      <!-- 进度条 -->
+      <div class="progress-bar">
+        <div class="progress-fill" :style="{ width: progress * 100 + '%' }" />
+      </div>
+
+      <!-- 进度文字 -->
+      <div class="progress-text">
+        已工作 <strong>{{ formatHm(workedMinutes) }}</strong> /
+        剩余 {{ formatHm(remainingMinutes) }}
+      </div>
+
+      <!-- 详细 meta -->
       <div class="meta">
-        {{ salaryTypeLabel }} ¥{{ config.salary.amount }} · 基础 ¥{{ baseRate.toFixed(2) }}/h
+        ¥{{ hourlyRate.toFixed(2) }}/h ·
+        {{ salaryTypeLabel }} ¥{{ config.salary.amount }} ·
+        {{ config.salary.startTime }}–{{ config.offTime }}
+      </div>
+      <div class="meta-light">
+        今日预计 ¥{{ expectedToday.toFixed(2) }}
       </div>
     </template>
     <template v-else>
@@ -65,11 +117,12 @@ const isConfigured = computed(() => config.salary.amount > 0);
   padding: 8px 0;
 }
 
-.rate-row {
+.earned-row {
   display: inline-flex;
   align-items: baseline;
   gap: 2px;
   color: var(--color-primary);
+  margin-bottom: 4px;
 }
 
 .currency {
@@ -85,21 +138,49 @@ const isConfigured = computed(() => config.salary.amount > 0);
   line-height: 1;
 }
 
-.unit {
-  font-size: 12px;
-  opacity: 0.6;
-  margin-left: 4px;
+.earned-label {
+  font-size: 11px;
+  opacity: 0.5;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
 }
 
-.multiplier {
+.progress-bar {
+  height: 4px;
+  background: var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 8px auto;
+  max-width: 280px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.5s ease;
+}
+
+.progress-text {
   font-size: 12px;
+  opacity: 0.8;
   margin-top: 6px;
+}
+
+.progress-text strong {
+  font-weight: 500;
+  color: var(--color-primary);
 }
 
 .meta {
   font-size: 11px;
   opacity: 0.5;
-  margin-top: 4px;
+  margin-top: 6px;
+}
+
+.meta-light {
+  font-size: 11px;
+  opacity: 0.4;
+  margin-top: 2px;
 }
 
 .empty {

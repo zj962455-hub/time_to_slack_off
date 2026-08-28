@@ -73,7 +73,11 @@ export const useConfigStore = defineStore("config", () => {
           tabs.value = saved.tabs
         }
         if (saved.holidayOverrides) holidayOverrides.value = saved.holidayOverrides
-        if (saved.salary) salary.value = { ...DEFAULT_SALARY, ...saved.salary }
+        if (saved.salary) {
+          // 向后兼容：旧版本可能有 workHoursPerDay 字段，新版自动从 startTime + offTime 算
+          const { workHoursPerDay: _legacy, ...rest } = saved.salary as any
+          salary.value = { ...DEFAULT_SALARY, ...rest }
+        }
         if (saved.customHolidays) customHolidays.value = saved.customHolidays
         if (saved.customDates) customDates.value = saved.customDates
       }

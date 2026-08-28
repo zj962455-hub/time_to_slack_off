@@ -140,7 +140,7 @@ async function removeOverrideItem(date: string) { await config.removeOverride(da
 async function setSalaryType(t: SalaryType) { await config.updateSalary({ type: t }); }
 async function setSalaryAmount(v: number) { await config.updateSalary({ amount: v }); }
 async function setSalaryWorkdays(v: number) { await config.updateSalary({ workdaysPerMonth: v }); }
-async function setSalaryHours(v: number) { await config.updateSalary({ workHoursPerDay: v }); }
+async function setSalaryStartTime(v: string) { await config.updateSalary({ startTime: v }); }
 
 // ===== Custom Holidays =====
 const newCustomHoliday = ref({ name: "", date: "", recurring: true });
@@ -193,6 +193,7 @@ async function removeCustomDateItem(idx: number) { await config.removeCustomDate
 
       <section class="block">
         <h3>时薪配置</h3>
+        <p class="hint">显示今日已工作时长对应的累计收入</p>
         <div class="salary-type">
           <button :class="{ active: config.salary.type === 'monthly' }" @click="setSalaryType('monthly')">月薪</button>
           <button :class="{ active: config.salary.type === 'daily' }" @click="setSalaryType('daily')">日薪</button>
@@ -208,11 +209,26 @@ async function removeCustomDateItem(idx: number) { await config.removeCustomDate
             @change="(e) => setSalaryAmount(Number((e.target as HTMLInputElement).value))"
           />
         </div>
+        <div class="salary-time">
+          <label>上班时间
+            <input
+              type="time"
+              :value="config.salary.startTime"
+              @change="(e) => setSalaryStartTime((e.target as HTMLInputElement).value)"
+            />
+          </label>
+          <label>下班时间
+            <input
+              type="time"
+              :value="config.offTime"
+              @change="(e) => config.setOffTime((e.target as HTMLInputElement).value)"
+            />
+          </label>
+        </div>
         <details v-if="config.salary.type !== 'hourly'" class="salary-extra">
           <summary>高级设置</summary>
           <div class="extra-grid">
             <label>每月工作天数 <input type="number" min="1" max="31" step="0.5" :value="config.salary.workdaysPerMonth" @change="(e) => setSalaryWorkdays(Number((e.target as HTMLInputElement).value))" /></label>
-            <label>每天工作小时 <input type="number" min="1" max="24" step="0.5" :value="config.salary.workHoursPerDay" @change="(e) => setSalaryHours(Number((e.target as HTMLInputElement).value))" /></label>
           </div>
         </details>
       </section>
@@ -490,6 +506,23 @@ input:focus, select:focus {
 .salary-amount input {
   flex: 1;
   font-size: 16px;
+}
+
+.salary-time {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.salary-time label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+.salary-time input {
+  font-size: 14px;
 }
 
 .salary-extra {
