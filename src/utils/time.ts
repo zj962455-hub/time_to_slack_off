@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { isWorkday, type HolidayOverride } from "./holiday";
 
 /**
  * 格式化倒计时秒数为 HH:MM:SS
@@ -6,21 +7,8 @@ import dayjs from "dayjs";
 export function formatCountdown(seconds: number): string {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
+  const s = Math.max(0, seconds % 60);
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-}
-
-/**
- * 计算从 now 到目标 HH:MM 的秒数
- * @returns >= 0：今天到下班时间，< 0：已下班（下次 24h 后）
- */
-export function secondsUntil(target: string, now: dayjs.Dayjs = dayjs()): number {
-  const [h, m] = target.split(":").map(Number);
-  let off = now.hour(h).minute(m).second(0).millisecond(0);
-  if (off.isBefore(now)) {
-    off = off.add(1, "day");
-  }
-  return off.diff(now, "second");
 }
 
 /**
@@ -29,6 +17,44 @@ export function secondsUntil(target: string, now: dayjs.Dayjs = dayjs()): number
 export function isWeekend(date: dayjs.Dayjs): boolean {
   const day = date.day(); // 0=Sun, 6=Sat
   return day === 0 || day === 6;
+}
+
+/**
+ * 距下一次「上班时间」还有多少秒
+ *
+ * 语义：
+ * - 今天就是工作日，且 now < startTime → 今天的 startTime
+ * - 其他情况 → 下一个工作日的 startTime
+ * - 找不到（超过 14 天没有工作日） → 返回 0
+ *
+ * 用于：下班后 / 休息日 → 显示距离下次上班的倒计时
+ */
+export function secondsUntilNextWorkdayStart(
+  startTime: string,
+  workdays: number[],
+  overrides: HolidayOverride[],
+  now: dayjs.Dayjs = dayjs()
+): number {
+  const [sh, sm] = startTime.split(":").map(Number);
+
+  // 今天就是工作日，且还没到 startTime → 用今天的 startTime
+  if (isWorkday(now, workdays, overrides)) {
+    const todayStart = now.hour(sh).minute(sm).second(0).millisecond(0);
+    if (now.isBefore(todayStart)) {
+      return todayStart.diff(now, "second");
+    }
+  }
+
+  // 找下一个工作日（最多搜 14 天，覆盖国庆 + 年假）
+  for (let i = 1; i <= 14; i++) {
+    const d = now.add(i, "day");
+    if (isWorkday(d, workdays, overrides)) {
+      const nextStart = d.hour(sh).minute(sm).second(0).millisecond(0);
+      return nextStart.diff(now, "second");
+    }
+  }
+
+  return 0;
 }
 
 /**

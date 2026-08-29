@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useConfigStore } from "../stores/config";
 import { ADDABLE_TABS, type TabConfig, type TabType } from "../types/tab";
 import type { SalaryType } from "../types/salary";
@@ -16,13 +16,6 @@ const TAB_TYPE_LABELS: Record<TabType, string> = {
 
 const emit = defineEmits<{ close: [] }>();
 const config = useConfigStore();
-
-// ===== 下班时间 =====
-const offTime = ref(config.offTime);
-watch(() => config.offTime, (val) => { offTime.value = val; });
-watch(offTime, async (val) => {
-  if (val !== config.offTime) await config.setOffTime(val);
-});
 
 // ===== 工作日 =====
 const workdaysOptions = [
@@ -186,13 +179,6 @@ async function removeCustomDateItem(idx: number) { await config.removeCustomDate
         <h2>设置</h2>
         <button class="close-x" @click="emit('close')" title="关闭">✕</button>
       </header>
-
-      <section class="block">
-        <div class="field">
-          <label>下班时间</label>
-          <input id="off-time" type="time" v-model="offTime" />
-        </div>
-      </section>
 
       <section class="block">
         <h3>工作日</h3>
