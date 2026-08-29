@@ -49,7 +49,7 @@ const days = computed(() => daysUntilPayday(payDay.value, now.value));
 
 .unit {
   font-size: 12px;
-  color: #000;
+  color: var(--color-text);
   opacity: 0.75;
   margin-top: 4px;
 }

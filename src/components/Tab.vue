@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, provide, ref } from "vue";
+import { computed } from "vue";
 import type { TabConfig } from "../types/tab";
 import WeekendTab from "../tabs/WeekendTab.vue";
 import PaydayTab from "../tabs/PaydayTab.vue";
@@ -9,39 +9,40 @@ import CustomHolidayTab from "../tabs/CustomHolidayTab.vue";
 import CustomDateTab from "../tabs/CustomDateTab.vue";
 
 const props = defineProps<{
-  tab: TabConfig
+  tab: TabConfig;
 }>();
 
 const component = computed(() => {
   switch (props.tab.type) {
     case "weekend":
-      return WeekendTab
+      return WeekendTab;
     case "salary-day":
-      return PaydayTab
+      return PaydayTab;
     case "holiday":
-      return HolidayTab
+      return HolidayTab;
     case "hourly":
-      return HourlyTab
+      return HourlyTab;
     case "custom-holiday":
-      return CustomHolidayTab
+      return CustomHolidayTab;
     case "custom-date":
-      return CustomDateTab
+      return CustomDateTab;
     default:
-      return null
+      return null;
   }
 });
 
-// 动态 header：HolidayTab 通过 setTabHeader 注入节日名（替代固定 tab.label）
-const headerText = ref(props.tab.label);
-provide<(text: string) => void>("setTabHeader", (text: string) => {
-  headerText.value = text;
-});
+// HolidayTab 自己渲染 header（Tab.vue 不渲染默认 header）
+const showTabHeader = computed(() => props.tab.type !== "holiday");
 </script>
 
 <template>
   <div class="tab-wrapper">
-    <div class="tab-header">{{ headerText }}</div>
-    <component :is="component" v-if="component" :config="tab.config" />
+    <div v-if="showTabHeader" class="tab-header">{{ tab.label }}</div>
+    <component
+      :is="component"
+      v-if="component"
+      :config="tab.config"
+    />
   </div>
 </template>
 
@@ -72,7 +73,7 @@ provide<(text: string) => void>("setTabHeader", (text: string) => {
 
 .tab-header {
   font-size: 10px;
-  color: #000; /* 跟随老大要求：tab header 静态文字黑色 */
+  color: var(--color-text); /* 跟随主题：浅色模式近黑，深色模式近白 */
   opacity: 0.75;
   letter-spacing: 0.5px;
   margin-bottom: 2px;

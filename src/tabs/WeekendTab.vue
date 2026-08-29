@@ -43,7 +43,7 @@ const days = computed(() => daysUntilWeekend(config.workdays, now.value));
 
 .unit {
   font-size: 12px;
-  color: #000;
+  color: var(--color-text);
   opacity: 0.75;
   margin-top: 4px;
 }

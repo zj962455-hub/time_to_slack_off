@@ -127,7 +127,7 @@ const display = computed(() =>
 .label {
   font-size: var(--text-xs);
   font-weight: 400;
-  color: #000; /* 非动态静态文字，跟随老大要求调黑色 */
+  color: var(--color-text); /* 跟随主题：浅色模式近黑，深色模式近白，与 widget 背景反色 */
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
@@ -145,8 +145,8 @@ const display = computed(() =>
 
 .quote {
   font-size: 10px;
-  color: #000;
-  opacity: 0.75; /* 黑色但保留微透明，避免 10px 字号看起来太死 */
+  color: var(--color-text);
+  opacity: 0.75;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

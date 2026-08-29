@@ -83,9 +83,10 @@ const widgetTabs = computed(() => visibleTabs.value);
 </template>
 
 <style>
-/* 老大要求：tab 内的静态文字(灰色 opacity)统一改成黑色
+/* 老大要求：tab 内的静态文字(灰色 opacity)统一跟随主题色
  * 大数字 (.big-number / .earned-row) 保持主题色高亮，不动
  * 只覆盖 .widget 范围内（settings 面板不受影响）
+ * 用 var(--color-text) 让文字跟 widget 背景反色（浅背景→深文字，深背景→浅文字）
  */
 .widget .tab-content .unit,
 .widget .tab-content .label,
@@ -97,7 +98,7 @@ const widgetTabs = computed(() => visibleTabs.value);
 .widget .tab-content .progress-text,
 .widget .tab-content .empty,
 .widget .tab-content .currency {
-  color: #000 !important;
+  color: var(--color-text) !important;
   opacity: 0.75 !important;
 }
 </style>

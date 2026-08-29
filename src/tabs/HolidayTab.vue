@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, inject, watch } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import dayjs from "dayjs";
 import { useConfigStore } from "../stores/config";
 import { daysUntilNextHoliday } from "../utils/holiday";
@@ -21,18 +21,13 @@ const result = computed(() => daysUntilNextHoliday(now.value, config.holidayOver
 const days = computed(() => result.value?.days ?? null);
 const name = computed(() => result.value?.name ?? null);
 
-// 把动态节日名注入到 tab-header（替代默认的「距离最近节假日」）
-const setHeader = inject<(text: string) => void>("setTabHeader");
-function syncHeader() {
-  if (!setHeader) return;
-  setHeader(name.value ? `距离${name.value}` : "暂无节假日");
-}
-syncHeader();
-watch(name, syncHeader);
+// HolidayTab 自己渲染 header（替代 Tab.vue 默认的「距离最近节假日」）
+const headerText = computed(() => (name.value ? `距离${name.value}` : "暂无节假日"));
 </script>
 
 <template>
   <div class="tab-content">
+    <div class="custom-header">{{ headerText }}</div>
     <div class="big-number">{{ days ?? "—" }}</div>
     <div class="unit">{{ days !== null ? "天" : "" }}</div>
   </div>
@@ -42,6 +37,20 @@ watch(name, syncHeader);
 .tab-content {
   text-align: center;
   padding: 8px 0;
+}
+
+/* 视觉与 Tab.vue 默认 .tab-header 完全一致,占据同一位置 */
+.custom-header {
+  font-size: 10px;
+  color: var(--color-text);
+  opacity: 0.75;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  height: 14px;
+  line-height: 14px;
 }
 
 .big-number {
@@ -54,7 +63,7 @@ watch(name, syncHeader);
 
 .unit {
   font-size: 12px;
-  color: #000;
+  color: var(--color-text);
   opacity: 0.75;
   margin-top: 4px;
 }

@@ -28,6 +28,13 @@ pub fn run() {
                     let _ = window.set_skip_taskbar(true);
                     let _ = window.set_visible_on_all_workspaces(true);
 
+                    // 初始位置：屏幕右上角（避开 Safari/QQ 等占中部的窗口）
+                    #[cfg(target_os = "macos")]
+                    {
+                        use tauri::PhysicalPosition;
+                        let _ = window.set_position(PhysicalPosition::new(1500, 80));
+                    }
+
                     #[cfg(target_os = "macos")]
                     {
                         use objc::runtime::{NO, YES, Object};
