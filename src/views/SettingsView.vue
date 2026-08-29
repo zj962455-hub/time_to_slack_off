@@ -3,6 +3,10 @@ import { ref } from "vue";
 import { useConfigStore } from "../stores/config";
 import { ADDABLE_TABS, type TabConfig, type TabType } from "../types/tab";
 import type { SalaryType } from "../types/salary";
+import { THEME_LIST } from "../styles/themes";
+import type { ThemeId } from "../styles/themes";
+import { autoDetectTheme } from "../utils/theme";
+import dayjsLib from "dayjs";
 
 // Tab 类型中文标签映射
 const TAB_TYPE_LABELS: Record<TabType, string> = {
@@ -138,6 +142,14 @@ async function setSalaryPayDay(v: number) {
   await config.updateSalary({ payDay: clamped });
 }
 
+// ===== Theme =====
+async function setTheme(t: ThemeId | "auto") { await config.setTheme(t); }
+const detectedTheme = autoDetectTheme(dayjsLib());
+const THEME_OPTIONS: Array<{ id: ThemeId | "auto"; name: string; emoji: string; tag?: string }> = [
+  { id: "auto", name: "自动", emoji: "🪄", tag: `今天 → ${THEME_LIST.find(t => t.id === detectedTheme)?.name ?? "默认"}` },
+  ...THEME_LIST.map(t => ({ id: t.id, name: t.name, emoji: t.emoji })),
+];
+
 // 本月预计工作天数（实时计算）
 import { calcLegalWorkdays } from "../utils/workdays";
 import dayjs from "dayjs";
@@ -179,6 +191,24 @@ async function removeCustomDateItem(idx: number) { await config.removeCustomDate
         <h2>设置</h2>
         <button class="close-x" @click="emit('close')" title="关闭">✕</button>
       </header>
+
+      <section class="block">
+        <h3>主题</h3>
+        <p class="hint">节日主题自动跟随当前日期，也可手动选择</p>
+        <div class="theme-grid">
+          <button
+            v-for="opt in THEME_OPTIONS"
+            :key="opt.id"
+            class="theme-btn"
+            :class="{ active: (config.theme ?? 'auto') === opt.id }"
+            :title="opt.tag"
+            @click="setTheme(opt.id)"
+          >
+            <span class="theme-emoji">{{ opt.emoji }}</span>
+            <span class="theme-name">{{ opt.name }}</span>
+          </button>
+        </div>
+      </section>
 
       <section class="block">
         <h3>工作日</h3>
@@ -490,6 +520,43 @@ input:focus, select:focus {
   background: var(--color-primary);
   color: white;
   border-color: var(--color-primary);
+}
+
+/* 主题选择器 */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.theme-btn {
+  padding: 8px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.15s;
+}
+.theme-btn:hover {
+  background: var(--color-bg-subtle);
+}
+.theme-btn.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+.theme-btn .theme-emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+.theme-btn .theme-name {
+  font-size: 11px;
+  white-space: nowrap;
 }
 
 .salary-type {

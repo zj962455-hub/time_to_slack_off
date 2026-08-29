@@ -6,6 +6,8 @@ import Tab from "../components/Tab.vue";
 import SettingsView from "./SettingsView.vue";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
+import { resolveTheme } from "../utils/theme";
+import type { ThemeId } from "../styles/themes";
 
 const config = useConfigStore();
 const showSettings = ref(false);
@@ -39,13 +41,18 @@ onMounted(async () => {
 
 const visibleTabs = computed(() => config.enabledTabs());
 const widgetTabs = computed(() => visibleTabs.value);
+
+// 当前激活主题：auto 时自动检测，否则用用户选择
+const currentTheme = computed<ThemeId>(() =>
+  resolveTheme(config.theme ?? "auto")
+);
 </script>
 
 <template>
   <div class="widget" data-tauri-drag-region>
     <!-- Widget 模式：紧凑 -->
     <Transition name="fade-scale" appear>
-      <div v-if="!showSettings" class="widget-body" data-tauri-drag-region>
+      <div v-if="!showSettings" :class="['widget-body', `theme-${currentTheme}`]" data-tauri-drag-region>
         <div class="row top-row" data-tauri-drag-region="false">
           <Countdown
             v-if="config.loaded && config.offTime"

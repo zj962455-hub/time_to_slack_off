@@ -1,0 +1,283 @@
+/**
+ * 节日主题 CSS Variables
+ *
+ * 每个主题通过 widget-body.theme-{id} 类切换
+ * 覆盖 :root 默认的颜色变量
+ */
+
+.widget-body.theme-default,
+.widget-body:not([class*="theme-"]) {
+  /* 默认主题：保持 :root 变量不变 */
+  background: var(--color-bg-elevated, rgba(40, 40, 45, 0.85));
+  border-color: var(--color-border, rgba(255, 255, 255, 0.18));
+}
+
+/* ===== 春节：红金喜庆 ===== */
+.widget-body.theme-spring {
+  background: linear-gradient(135deg, rgba(200, 16, 46, 0.92) 0%, rgba(139, 0, 0, 0.92) 100%) !important;
+  border-color: rgba(255, 215, 0, 0.45) !important;
+  box-shadow:
+    0 0 0 0.5px rgba(255, 215, 0, 0.3),
+    0 12px 36px rgba(139, 0, 0, 0.4),
+    0 4px 12px rgba(139, 0, 0, 0.25) !important;
+}
+.widget-body.theme-spring .countdown .label,
+.widget-body.theme-spring .countdown .quote,
+.widget-body.theme-spring .tab-content .unit,
+.widget-body.theme-spring .tab-content .label,
+.widget-body.theme-spring .tab-wrapper .tab-header,
+.widget-body.theme-spring .custom-header,
+.widget-body.theme-spring .progress-text {
+  color: #ffd700 !important;
+  opacity: 1 !important;
+}
+.widget-body.theme-spring .countdown .time {
+  color: #ffd700 !important;
+}
+.widget-body.theme-spring .tab-content .big-number {
+  color: #ffd700 !important;
+}
+.widget-body.theme-spring .tab-wrapper {
+  background: rgba(180, 30, 50, 0.5) !important;
+  border-color: rgba(255, 215, 0, 0.25) !important;
+}
+
+/* ===== 元宵：红橙灯笼 ===== */
+.widget-body.theme-lantern {
+  background: linear-gradient(135deg, rgba(220, 50, 30, 0.92) 0%, rgba(255, 140, 0, 0.88) 100%) !important;
+  border-color: rgba(255, 220, 100, 0.5) !important;
+  box-shadow:
+    0 0 0 0.5px rgba(255, 220, 100, 0.3),
+    0 12px 36px rgba(200, 80, 0, 0.4),
+    0 4px 12px rgba(200, 80, 0, 0.25) !important;
+}
+.widget-body.theme-lantern .countdown .label,
+.widget-body.theme-lantern .countdown .quote,
+.widget-body.theme-lantern .tab-content .unit,
+.widget-body.theme-lantern .tab-content .label,
+.widget-body.theme-lantern .tab-wrapper .tab-header,
+.widget-body.theme-lantern .custom-header,
+.widget-body.theme-lantern .progress-text {
+  color: #fff59d !important;
+  opacity: 1 !important;
+}
+.widget-body.theme-lantern .countdown .time {
+  color: #fff59d !important;
+}
+.widget-body.theme-lantern .tab-content .big-number {
+  color: #fff59d !important;
+}
+.widget-body.theme-lantern .tab-wrapper {
+  background: rgba(200, 80, 40, 0.5) !important;
+  border-color: rgba(255, 220, 100, 0.25) !important;
+}
+
+/* ===== 清明：青绿素雅 ===== */
+.widget-body.theme-qingming {
+  background: linear-gradient(135deg, rgba(46, 125, 50, 0.88) 0%, rgba(102, 187, 106, 0.85) 100%) !important;
+  border-color: rgba(200, 230, 201, 0.45) !important;
+  box-shadow:
+    0 0 0 0.5px rgba(200, 230, 201, 0.3),
+    0 12px 36px rgba(46, 125, 50, 0.3),
+    0 4px 12px rgba(46, 125, 50, 0.2) !important;
+}
+.widget-body.theme-qingming .countdown .label,
+.widget-body.theme-qingming .countdown .quote,
+.widget-body.theme-qingming .tab-content .unit,
+.widget-body.theme-qingming .tab-content .label,
+.widget-body.theme-qingming .tab-wrapper .tab-header,
+.widget-body.theme-qingming .custom-header,
+.widget-body.theme-qingming .progress-text {
+  color: #e8f5e9 !important;
+  opacity: 1 !important;
+}
+.widget-body.theme-qingming .countdown .time {
+  color: #a5d6a7 !important;
+}
+.widget-body.theme-qingming .tab-content .big-number {
+  color: #c8e6c9 !important;
+}
+.widget-body.theme-qingming .tab-wrapper {
+  background: rgba(56, 142, 60, 0.55) !important;
+  border-color: rgba(200, 230, 201, 0.3) !important;
+}
+
+/* ===== 端午：翠绿艾草 ===== */
+.widget-body.theme-dragon {
+  background: linear-gradient(135deg, rgba(0, 100, 60, 0.9) 0%, rgba(46, 125, 50, 0.9) 100%) !important;
+  border-color: rgba(255, 235, 59, 0.4) !important;
+  box-shadow:
+    0 0 0 0.5px rgba(255, 235, 59, 0.25),
+    0 12px 36px rgba(0, 100, 60, 0.4),
+    0 4px 12px rgba(0, 100, 60, 0.25) !important;
+}
+.widget-body.theme-dragon .countdown .label,
+.widget-body.theme-dragon .countdown .quote,
+.widget-body.theme-dragon .tab-content .unit,
+.widget-body.theme-dragon .tab-content .label,
+.widget-body.theme-dragon .tab-wrapper .tab-header,
+.widget-body.theme-dragon .custom-header,
+.widget-body.theme-dragon .progress-text {
+  color: #fff9c4 !important;
+  opacity: 1 !important;
+}
+.widget-body.theme-dragon .countdown .time {
+  color: #ffeb3b !important;
+}
+.widget-body.theme-dragon .tab-content .big-number {
+  color: #ffeb3b !important;
+}
+.widget-body.theme-dragon .tab-wrapper {
+  background: rgba(20, 110, 70, 0.55) !important;
+  border-color: rgba(255, 235, 59, 0.25) !important;
+}
+
+/* ===== 中秋：暖月金 ===== */
+.widget-body.theme-mid-autumn {
+  background: linear-gradient(135deg, rgba(255, 143, 0, 0.88) 0%, rgba(191, 54, 12, 0.92) 100%) !important;
+  border-color: rgba(255, 224, 130, 0.5) !important;
+  box-shadow:
+    0 0 0 0.5px rgba(255, 224, 130, 0.3),
+    0 12px 36px rgba(191, 54, 12, 0.4),
+    0 4px 12px rgba(191, 54, 12, 0.25) !important;
+}
+.widget-body.theme-mid-autumn .countdown .label,
+.widget-body.theme-mid-autumn .countdown .quote,
+.widget-body.theme-mid-autumn .tab-content .unit,
+.widget-body.theme-mid-autumn .tab-content .label,
+.widget-body.theme-mid-autumn .tab-wrapper .tab-header,
+.widget-body.theme-mid-autumn .custom-header,
+.widget-body.theme-mid-autumn .progress-text {
+  color: #fff3e0 !important;
+  opacity: 1 !important;
+}
+.widget-body.theme-mid-autumn .countdown .time {
+  color: #ffe082 !important;
+}
+.widget-body.theme-mid-autumn .tab-content .big-number {
+  color: #ffe082 !important;
+}
+.widget-body.theme-mid-autumn .tab-wrapper {
+  background: rgba(230, 110, 20, 0.5) !important;
+  border-color: rgba(255, 224, 130, 0.25) !important;
+}
+
+/* ===== 国庆：中国红 ===== */
+.widget-body.theme-national {
+  background: linear-gradient(135deg, rgba(222, 41, 16, 0.92) 0%, rgba(241, 169, 54, 0.85) 100%) !important;
+  border-color: rgba(255, 215, 0, 0.5) !important;
+  box-shadow:
+    0 0 0 0.5px rgba(255, 215, 0, 0.3),
+    0 12px 36px rgba(222, 41, 16, 0.4),
+    0 4px 12px rgba(222, 41, 16, 0.25) !important;
+}
+.widget-body.theme-national .countdown .label,
+.widget-body.theme-national .countdown .quote,
+.widget-body.theme-national .tab-content .unit,
+.widget-body.theme-national .tab-content .label,
+.widget-body.theme-national .tab-wrapper .tab-header,
+.widget-body.theme-national .custom-header,
+.widget-body.theme-national .progress-text {
+  color: #ffeb3b !important;
+  opacity: 1 !important;
+}
+.widget-body.theme-national .countdown .time {
+  color: #ffd54f !important;
+}
+.widget-body.theme-national .tab-content .big-number {
+  color: #ffd54f !important;
+}
+.widget-body.theme-national .tab-wrapper {
+  background: rgba(222, 41, 16, 0.55) !important;
+  border-color: rgba(255, 215, 0, 0.25) !important;
+}
+
+/* ===== 元旦：蓝白冬日 ===== */
+.widget-body.theme-new-year {
+  background: linear-gradient(135deg, rgba(33, 87, 154, 0.9) 0%, rgba(165, 199, 234, 0.85) 100%) !important;
+  border-color: rgba(220, 235, 250, 0.5) !important;
+  box-shadow:
+    0 0 0 0.5px rgba(220, 235, 250, 0.3),
+    0 12px 36px rgba(33, 87, 154, 0.4),
+    0 4px 12px rgba(33, 87, 154, 0.25) !important;
+}
+.widget-body.theme-new-year .countdown .label,
+.widget-body.theme-new-year .countdown .quote,
+.widget-body.theme-new-year .tab-content .unit,
+.widget-body.theme-new-year .tab-content .label,
+.widget-body.theme-new-year .tab-wrapper .tab-header,
+.widget-body.theme-new-year .custom-header,
+.widget-body.theme-new-year .progress-text {
+  color: #e3f2fd !important;
+  opacity: 1 !important;
+}
+.widget-body.theme-new-year .countdown .time {
+  color: #bbdefb !important;
+}
+.widget-body.theme-new-year .tab-content .big-number {
+  color: #bbdefb !important;
+}
+.widget-body.theme-new-year .tab-wrapper {
+  background: rgba(33, 87, 154, 0.5) !important;
+  border-color: rgba(220, 235, 250, 0.25) !important;
+}
+
+/* ===== 圣诞：红绿圣诞 ===== */
+.widget-body.theme-christmas {
+  background: linear-gradient(135deg, rgba(168, 28, 38, 0.92) 0%, rgba(13, 110, 58, 0.92) 100%) !important;
+  border-color: rgba(255, 235, 59, 0.5) !important;
+  box-shadow:
+    0 0 0 0.5px rgba(255, 235, 59, 0.3),
+    0 12px 36px rgba(168, 28, 38, 0.4),
+    0 4px 12px rgba(168, 28, 38, 0.25) !important;
+}
+.widget-body.theme-christmas .countdown .label,
+.widget-body.theme-christmas .countdown .quote,
+.widget-body.theme-christmas .tab-content .unit,
+.widget-body.theme-christmas .tab-content .label,
+.widget-body.theme-christmas .tab-wrapper .tab-header,
+.widget-body.theme-christmas .custom-header,
+.widget-body.theme-christmas .progress-text {
+  color: #ffeb3b !important;
+  opacity: 1 !important;
+}
+.widget-body.theme-christmas .countdown .time {
+  color: #ffeb3b !important;
+}
+.widget-body.theme-christmas .tab-content .big-number {
+  color: #ffeb3b !important;
+}
+.widget-body.theme-christmas .tab-wrapper {
+  background: rgba(168, 28, 38, 0.5) !important;
+  border-color: rgba(255, 235, 59, 0.25) !important;
+}
+
+/* ===== 情人节：粉红浪漫 ===== */
+.widget-body.theme-valentine {
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.9) 0%, rgba(255, 64, 129, 0.9) 100%) !important;
+  border-color: rgba(255, 205, 210, 0.5) !important;
+  box-shadow:
+    0 0 0 0.5px rgba(255, 205, 210, 0.3),
+    0 12px 36px rgba(233, 30, 99, 0.4),
+    0 4px 12px rgba(233, 30, 99, 0.25) !important;
+}
+.widget-body.theme-valentine .countdown .label,
+.widget-body.theme-valentine .countdown .quote,
+.widget-body.theme-valentine .tab-content .unit,
+.widget-body.theme-valentine .tab-content .label,
+.widget-body.theme-valentine .tab-wrapper .tab-header,
+.widget-body.theme-valentine .custom-header,
+.widget-body.theme-valentine .progress-text {
+  color: #fff5f8 !important;
+  opacity: 1 !important;
+}
+.widget-body.theme-valentine .countdown .time {
+  color: #ffeb3b !important;
+}
+.widget-body.theme-valentine .tab-content .big-number {
+  color: #ffeb3b !important;
+}
+.widget-body.theme-valentine .tab-wrapper {
+  background: rgba(233, 30, 99, 0.45) !important;
+  border-color: rgba(255, 205, 210, 0.25) !important;
+}

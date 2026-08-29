@@ -4,6 +4,7 @@ import { LazyStore } from "@tauri-apps/plugin-store";
 import { DEFAULT_TABS, type TabConfig } from "../types/tab";
 import type { HolidayOverride } from "../utils/holiday";
 import { DEFAULT_SALARY, type SalaryConfig } from "../types/salary";
+import type { ThemeId } from "../styles/themes";
 
 // 配置文件位于 ~/.local/share/time-to-slack-off/config.json（Tauri 默认）
 // 在 web 环境下 LazyStore 会回退到 localStorage
@@ -29,6 +30,7 @@ interface SavedConfig {
   salary: SalaryConfig
   customHolidays: CustomHoliday[]
   customDates: CustomDate[]
+  theme: ThemeId | "auto"
 }
 
 function genId(): string {
@@ -51,6 +53,7 @@ const DEFAULT_CONFIG: SavedConfig = {
   salary: { ...DEFAULT_SALARY },
   customHolidays: [],
   customDates: [],
+  theme: "auto", // "auto" → utils/theme.ts 按当前日期自动选
 }
 
 export const useConfigStore = defineStore("config", () => {
@@ -61,6 +64,7 @@ export const useConfigStore = defineStore("config", () => {
   const salary = ref<SalaryConfig>({ ...DEFAULT_SALARY })
   const customHolidays = ref<CustomHoliday[]>([])
   const customDates = ref<CustomDate[]>([])
+  const theme = ref<ThemeId | "auto">(DEFAULT_CONFIG.theme)
   const loaded = ref(false)
 
   async function load() {
@@ -80,6 +84,7 @@ export const useConfigStore = defineStore("config", () => {
         }
         if (saved.customHolidays) customHolidays.value = saved.customHolidays
         if (saved.customDates) customDates.value = saved.customDates
+        if (saved.theme) theme.value = saved.theme
       }
     } catch (e) {
       console.warn("[config] load failed, use defaults", e)
@@ -98,6 +103,7 @@ export const useConfigStore = defineStore("config", () => {
         salary: salary.value,
         customHolidays: customHolidays.value,
         customDates: customDates.value,
+        theme: theme.value,
       })
       await store.save()
     } catch (e) {
@@ -107,6 +113,11 @@ export const useConfigStore = defineStore("config", () => {
 
   async function setOffTime(time: string) {
     offTime.value = time
+    await persist()
+  }
+
+  async function setTheme(t: ThemeId | "auto") {
+    theme.value = t
     await persist()
   }
 
@@ -199,9 +210,11 @@ export const useConfigStore = defineStore("config", () => {
     salary,
     customHolidays,
     customDates,
+    theme,
     loaded,
     load,
     setOffTime,
+    setTheme,
     updateSalary,
     addCustomHoliday,
     removeCustomHoliday,
