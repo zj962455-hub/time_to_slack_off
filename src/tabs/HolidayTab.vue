@@ -1,35 +1,41 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import dayjs from "dayjs";
 import { useConfigStore } from "../stores/config";
 import { daysUntilNextHoliday } from "../utils/holiday";
 
 const config = useConfigStore();
-const now = ref(dayjs());
-let timer: number | null = null;
 
+// 不用 computed—— Tauri macOS WKWebView 的 JavaScriptCore 引擎对 Vue 3 computed + reactive 在 dynamic component 边界下有边界问题
+// 直接用 ref + setInterval tick 主动赋值，避免依赖 computed 的 lazy 求值链
+const headerText = ref("暂无节假日");
+const bigNumber = ref("—");
+const unitText = ref("");
+
+function tick() {
+  const info = daysUntilNextHoliday(dayjs(), config.holidayOverrides);
+  const days = info?.days ?? null;
+  const name = info?.name ?? null;
+  headerText.value = name ? `距离${name}` : "暂无节假日";
+  bigNumber.value = days === null ? "—" : String(days);
+  unitText.value = days === null ? "" : "天";
+}
+
+let timer: number | null = null;
 onMounted(() => {
-  timer = window.setInterval(() => {
-    now.value = dayjs();
-  }, 1000);
+  tick();
+  timer = window.setInterval(tick, 1000);
 });
 onUnmounted(() => {
   if (timer) clearInterval(timer);
 });
-
-const result = computed(() => daysUntilNextHoliday(now.value, config.holidayOverrides));
-const days = computed(() => result.value?.days ?? null);
-const name = computed(() => result.value?.name ?? null);
-
-// HolidayTab 自己渲染 header（替代 Tab.vue 默认的「距离最近节假日」）
-const headerText = computed(() => (name.value ? `距离${name.value}` : "暂无节假日"));
 </script>
 
 <template>
   <div class="tab-content">
     <div class="custom-header">{{ headerText }}</div>
-    <div class="big-number">{{ days ?? "—" }}</div>
-    <div class="unit">{{ days !== null ? "天" : "" }}</div>
+    <div class="big-number">{{ bigNumber }}</div>
+    <div class="unit">{{ unitText }}</div>
   </div>
 </template>
 

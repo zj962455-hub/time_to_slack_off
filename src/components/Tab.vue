@@ -31,13 +31,11 @@ const component = computed(() => {
   }
 });
 
-// HolidayTab 自己渲染 header（Tab.vue 不渲染默认 header）
-const showTabHeader = computed(() => props.tab.type !== "holiday");
+// Tab.vue 不再渲染 header，每个 tab 组件自己渲染（避免 prod build 响应式边角问题）
 </script>
 
 <template>
   <div class="tab-wrapper">
-    <div v-if="showTabHeader" class="tab-header">{{ tab.label }}</div>
     <component
       :is="component"
       v-if="component"
