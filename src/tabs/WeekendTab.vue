@@ -18,19 +18,12 @@ onUnmounted(() => {
 });
 
 const days = computed(() => daysUntilWeekend(config.workdays, now.value));
-
-const label = computed(() => {
-  if (days.value === 0) return "🎉 周末到了";
-  if (days.value === 1) return "明天就是周末";
-  return `还有 ${days.value} 天`;
-});
 </script>
 
 <template>
   <div class="tab-content">
     <div class="big-number">{{ days }}</div>
     <div class="unit">天</div>
-    <div class="label">{{ label }}</div>
   </div>
 </template>
 
@@ -50,13 +43,8 @@ const label = computed(() => {
 
 .unit {
   font-size: 12px;
-  opacity: 0.6;
+  color: #000;
+  opacity: 0.75;
   margin-top: 4px;
-}
-
-.label {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-top: 8px;
 }
 </style>

@@ -24,18 +24,12 @@ onUnmounted(() => {
 });
 
 const days = computed(() => daysUntilPayday(payDay.value, now.value));
-
-const label = computed(() => {
-  if (days.value === 0) return "💰 今天是发薪日";
-  return `每月 ${payDay.value} 号发薪`;
-});
 </script>
 
 <template>
   <div class="tab-content">
     <div class="big-number">{{ days }}</div>
     <div class="unit">天</div>
-    <div class="label">{{ label }}</div>
   </div>
 </template>
 
@@ -55,13 +49,8 @@ const label = computed(() => {
 
 .unit {
   font-size: 12px;
-  opacity: 0.6;
+  color: #000;
+  opacity: 0.75;
   margin-top: 4px;
-}
-
-.label {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-top: 8px;
 }
 </style>

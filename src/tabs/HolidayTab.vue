@@ -25,7 +25,7 @@ const name = computed(() => result.value?.name ?? "暂无");
 const label = computed(() => {
   if (days.value === null) return "暂无节假日";
   if (days.value === 0) return "🎉 今天就是！摸鱼中";
-  return `下一个：${name.value}`;
+  return `距离${name.value}`;
 });
 </script>
 
@@ -53,13 +53,15 @@ const label = computed(() => {
 
 .unit {
   font-size: 12px;
-  opacity: 0.6;
+  color: #000;
+  opacity: 0.75;
   margin-top: 4px;
 }
 
 .label {
   font-size: 12px;
-  opacity: 0.7;
+  color: #000;
+  opacity: 0.75;
   margin-top: 8px;
 }
 </style>
