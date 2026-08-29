@@ -82,6 +82,26 @@ const widgetTabs = computed(() => visibleTabs.value);
   </div>
 </template>
 
+<style>
+/* 老大要求：tab 内的静态文字(灰色 opacity)统一改成黑色
+ * 大数字 (.big-number / .earned-row) 保持主题色高亮，不动
+ * 只覆盖 .widget 范围内（settings 面板不受影响）
+ */
+.widget .tab-content .unit,
+.widget .tab-content .label,
+.widget .tab-content .name,
+.widget .tab-content .hint,
+.widget .tab-content .meta,
+.widget .tab-content .meta-light,
+.widget .tab-content .earned-label,
+.widget .tab-content .progress-text,
+.widget .tab-content .empty,
+.widget .tab-content .currency {
+  color: #000 !important;
+  opacity: 0.75 !important;
+}
+</style>
+
 <style scoped>
 .widget {
   width: 100vw;

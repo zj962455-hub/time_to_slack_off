@@ -66,7 +66,8 @@ const component = computed(() => {
 
 .tab-header {
   font-size: 10px;
-  opacity: 0.5;
+  color: #000; /* 跟随老大要求：tab header 静态文字黑色 */
+  opacity: 0.75;
   letter-spacing: 0.5px;
   margin-bottom: 2px;
   text-overflow: ellipsis;
