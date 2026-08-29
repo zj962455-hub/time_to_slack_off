@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useConfigStore } from "../stores/config";
-import { ADDABLE_TABS, type TabConfig, type TabType, type SalaryDayConfig } from "../types/tab";
+import { ADDABLE_TABS, type TabConfig, type TabType } from "../types/tab";
 import type { SalaryType } from "../types/salary";
 
 // Tab 类型中文标签映射
@@ -119,10 +119,6 @@ function onDragEnd() {
   dragOverTabId.value = null;
 }
 
-async function setPayday(id: string, day: number) {
-  await config.updateTab(id, { config: { day } as SalaryDayConfig });
-}
-
 const showAddTab = ref(false);
 
 // ===== Override =====
@@ -144,6 +140,10 @@ async function setSalaryAmount(v: number) { await config.updateSalary({ amount: 
 async function setSalaryOvertime(v: number) { await config.updateSalary({ overtimeDays: Math.max(0, v) }); }
 async function setSalaryLeave(v: number) { await config.updateSalary({ leaveDays: Math.max(0, v) }); }
 async function setSalaryStartTime(v: string) { await config.updateSalary({ startTime: v }); }
+async function setSalaryPayDay(v: number) {
+  const clamped = Math.min(31, Math.max(1, Math.floor(v) || 15));
+  await config.updateSalary({ payDay: clamped });
+}
 
 // 本月预计工作天数（实时计算）
 import { calcLegalWorkdays } from "../utils/workdays";
@@ -242,8 +242,17 @@ async function removeCustomDateItem(idx: number) { await config.removeCustomDate
               @change="(e) => config.setOffTime((e.target as HTMLInputElement).value)"
             />
           </label>
+          <label>发薪日
+            <input
+              type="number"
+              min="1"
+              max="31"
+              :value="config.salary.payDay"
+              @change="(e) => setSalaryPayDay(Number((e.target as HTMLInputElement).value))"
+            />号
+          </label>
         </div>
-        <details v-if="config.salary.type !== 'hourly'" class="salary-extra">
+        <details v-if="config.salary.type !== 'hourly'" open class="salary-extra">
           <summary>高级设置（加班 / 请假）</summary>
           <div class="extra-grid">
             <label>加班天数 <input type="number" min="0" step="1" :value="config.salary.overtimeDays" @change="(e) => setSalaryOvertime(Number((e.target as HTMLInputElement).value))" /></label>
@@ -291,7 +300,7 @@ async function removeCustomDateItem(idx: number) { await config.removeCustomDate
               <button class="danger" @click="removeTab(tab.id)" title="删除">×</button>
             </div>
             <div v-if="tab.type === 'salary-day'" class="tab-extra">
-              <label>发薪日：<input type="number" min="1" max="31" :value="(tab.config as SalaryDayConfig)?.day ?? 15" @change="(e) => setPayday(tab.id, Number((e.target as HTMLInputElement).value))" />号</label>
+              <span class="hint-inline">发薪日在「时薪配置」中设置（当前 {{ config.salary.payDay ?? 15 }} 号）</span>
             </div>
           </div>
         </div>
@@ -533,7 +542,7 @@ input:focus, select:focus {
 
 .salary-time {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 12px;
   margin-top: 12px;
 }
@@ -652,6 +661,10 @@ input:focus, select:focus {
   font-size: 12px;
   opacity: 0.7;
   padding-top: 4px;
+}
+.tab-extra .hint-inline {
+  font-size: 11px;
+  opacity: 0.6;
 }
 .add-tab { margin-top: 10px; }
 .add-tab-picker {

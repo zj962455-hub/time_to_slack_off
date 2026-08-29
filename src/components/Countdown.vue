@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import dayjs from "dayjs";
 import { useConfigStore } from "../stores/config";
+import { isWorkday as checkIsWorkday } from "../utils/holiday";
 
 const props = defineProps<{
   offTime: string;
@@ -22,9 +23,17 @@ onUnmounted(() => {
 });
 
 /**
- * 判断当前时间是否在上班时间段内
+ * 今天是否需要上班（考虑调休 + 假期覆盖 + 用户自定义工作日）
+ */
+const isWorkday = computed(() => {
+  return checkIsWorkday(now.value, config.workdays, config.holidayOverrides);
+});
+
+/**
+ * 判断当前时间是否在上班时间段内（仅当 isWorkday 时才有可能为 true）
  */
 const isWorkPeriod = computed(() => {
+  if (!isWorkday.value) return false;
   const start = config.salary?.startTime || "09:00";
   const [sh, sm] = start.split(":").map(Number);
   const [oh, om] = props.offTime.split(":").map(Number);
@@ -37,6 +46,7 @@ const isWorkPeriod = computed(() => {
 });
 
 const remaining = computed(() => {
+  if (!isWorkPeriod.value) return "";
   const [h, m] = props.offTime.split(":").map(Number);
   const off = now.value.hour(h).minute(m).second(0).millisecond(0);
   const diff = off.diff(now.value, "second");
@@ -50,11 +60,13 @@ const remaining = computed(() => {
 <template>
   <div class="countdown">
     <span class="label">
-      <template v-if="isWorkPeriod">距离下班</template>
+      <template v-if="!isWorkday">休息日</template>
+      <template v-else-if="isWorkPeriod">距离下班</template>
       <template v-else>已下班</template>
     </span>
-    <span class="time" :class="{ off: !isWorkPeriod }">
-      <template v-if="isWorkPeriod">{{ remaining }}</template>
+    <span class="time" :class="{ off: !isWorkPeriod || !isWorkday }">
+      <template v-if="!isWorkday">—</template>
+      <template v-else-if="isWorkPeriod">{{ remaining }}</template>
       <template v-else>— : — : —</template>
     </span>
   </div>

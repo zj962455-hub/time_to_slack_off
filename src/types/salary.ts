@@ -10,6 +10,7 @@ export interface SalaryConfig {
   startTime: string        // 上班时间 HH:MM（默认 09:00）
   overtimeDays: number     // 本月加班天数（默认 0）
   leaveDays: number        // 本月请假天数（默认 0）
+  payDay: number           // 每月发薪日（1-31，默认 15）
 }
 
 export const DEFAULT_SALARY: SalaryConfig = {
@@ -18,6 +19,7 @@ export const DEFAULT_SALARY: SalaryConfig = {
   startTime: "09:00",
   overtimeDays: 0,
   leaveDays: 0,
+  payDay: 15,
 }
 
 /**

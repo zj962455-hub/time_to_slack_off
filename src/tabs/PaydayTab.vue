@@ -2,12 +2,15 @@
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import dayjs from "dayjs";
 import { daysUntilPayday } from "../utils/holiday";
+import { useConfigStore } from "../stores/config";
 
+// props.config.day 保留向后兼容（旧数据）；新数据从 store.salary.payDay 读
 const props = defineProps<{
   config?: { day?: number }
 }>();
 
-const payDay = computed(() => props.config?.day ?? 15);
+const configStore = useConfigStore();
+const payDay = computed(() => configStore.salary.payDay ?? props.config?.day ?? 15);
 const now = ref(dayjs());
 let timer: number | null = null;
 

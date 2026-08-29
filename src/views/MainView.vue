@@ -43,7 +43,7 @@ async function handleDragStart(e: PointerEvent) {
   }
   if (!el || el === document.body) return;
 
-  e.preventDefault();
+  // 不 preventDefault —— Win WebView2 上会和 CSS -webkit-app-region: drag 抢事件
   try {
     await getCurrentWebviewWindow().startDragging();
   } catch (err) {
