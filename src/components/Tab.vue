@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, provide, ref } from "vue";
 import type { TabConfig } from "../types/tab";
 import WeekendTab from "../tabs/WeekendTab.vue";
 import PaydayTab from "../tabs/PaydayTab.vue";
@@ -30,11 +30,17 @@ const component = computed(() => {
       return null
   }
 });
+
+// 动态 header：HolidayTab 通过 setTabHeader 注入节日名（替代固定 tab.label）
+const headerText = ref(props.tab.label);
+provide<(text: string) => void>("setTabHeader", (text: string) => {
+  headerText.value = text;
+});
 </script>
 
 <template>
   <div class="tab-wrapper">
-    <div class="tab-header">{{ tab.label }}</div>
+    <div class="tab-header">{{ headerText }}</div>
     <component :is="component" v-if="component" :config="tab.config" />
   </div>
 </template>

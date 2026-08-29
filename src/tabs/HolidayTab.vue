@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed, inject, watch } from "vue";
 import dayjs from "dayjs";
 import { useConfigStore } from "../stores/config";
 import { daysUntilNextHoliday } from "../utils/holiday";
@@ -18,22 +18,23 @@ onUnmounted(() => {
 });
 
 const result = computed(() => daysUntilNextHoliday(now.value, config.holidayOverrides));
-
 const days = computed(() => result.value?.days ?? null);
-const name = computed(() => result.value?.name ?? "暂无");
+const name = computed(() => result.value?.name ?? null);
 
-const label = computed(() => {
-  if (days.value === null) return "暂无节假日";
-  if (days.value === 0) return "🎉 今天就是！摸鱼中";
-  return `距离${name.value}`;
-});
+// 把动态节日名注入到 tab-header（替代默认的「距离最近节假日」）
+const setHeader = inject<(text: string) => void>("setTabHeader");
+function syncHeader() {
+  if (!setHeader) return;
+  setHeader(name.value ? `距离${name.value}` : "暂无节假日");
+}
+syncHeader();
+watch(name, syncHeader);
 </script>
 
 <template>
   <div class="tab-content">
     <div class="big-number">{{ days ?? "—" }}</div>
     <div class="unit">{{ days !== null ? "天" : "" }}</div>
-    <div class="label">{{ label }}</div>
   </div>
 </template>
 
@@ -56,12 +57,5 @@ const label = computed(() => {
   color: #000;
   opacity: 0.75;
   margin-top: 4px;
-}
-
-.label {
-  font-size: 12px;
-  color: #000;
-  opacity: 0.75;
-  margin-top: 8px;
 }
 </style>
