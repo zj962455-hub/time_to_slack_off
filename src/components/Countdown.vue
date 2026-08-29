@@ -127,7 +127,7 @@ const display = computed(() =>
 .label {
   font-size: var(--text-xs);
   font-weight: 400;
-  color: var(--color-text-muted);
+  color: #000; /* 非动态静态文字，跟随老大要求调黑色 */
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
@@ -145,7 +145,8 @@ const display = computed(() =>
 
 .quote {
   font-size: 10px;
-  opacity: 0.55;
+  color: #000;
+  opacity: 0.75; /* 黑色但保留微透明，避免 10px 字号看起来太死 */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
