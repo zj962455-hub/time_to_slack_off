@@ -6,12 +6,14 @@ use tauri::{
 
 #[tauri::command]
 fn set_widget_size(window: tauri::WebviewWindow, mode: String) {
-    let size = match mode.as_str() {
-        "small" => PhysicalSize::new(320, 140),
-        "large" => PhysicalSize::new(460, 650),
+    // 动态切换 focusable：widget 模式不抢焦点，settings 模式要能输入
+    let (size, focusable) = match mode.as_str() {
+        "small" => (PhysicalSize::new(320, 140), false),
+        "large" => (PhysicalSize::new(460, 650), true),
         _ => return,
     };
     let _ = window.set_size(size);
+    let _ = window.set_focusable(focusable);
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

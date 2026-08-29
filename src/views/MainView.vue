@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useConfigStore } from "../stores/config";
 import Countdown from "../components/Countdown.vue";
 import Tab from "../components/Tab.vue";
 import SettingsView from "./SettingsView.vue";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
-import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 
 const config = useConfigStore();
 const showSettings = ref(false);
-const isWindows = ref(/Windows/i.test(navigator.userAgent));
 
 async function resizeWidget(mode: "small" | "large") {
   try {
@@ -30,48 +28,13 @@ async function closeSettings() {
   await resizeWidget("small");
 }
 
-// Win / Linux: pointerdown + startDragging（macOS 用 native drag region）
-async function handleDragStart(e: PointerEvent) {
-  if (e.button !== 0) return;
-  const target = e.target as HTMLElement;
-  // 向上查找 drag region（不在 no-drag 内）
-  let el: HTMLElement | null = target;
-  while (el && el !== document.body) {
-    if (el.dataset.tauriDragRegion === "false") return;
-    if (el.dataset.tauriDragRegion !== undefined) break;
-    el = el.parentElement;
-  }
-  if (!el || el === document.body) return;
-
-  // 不 preventDefault —— Win WebView2 上会和 CSS -webkit-app-region: drag 抢事件
-  try {
-    await getCurrentWebviewWindow().startDragging();
-  } catch (err) {
-    console.warn("startDragging failed:", err);
-  }
-}
-
 onMounted(async () => {
   await config.load();
-
-  // 检测平台
-  isWindows.value = /Windows/i.test(navigator.userAgent);
-
-  // 非 macOS 用 API 拖动
-  if (isWindows.value) {
-    document.addEventListener("pointerdown", handleDragStart);
-  }
 
   // 监听菜单栏 → "打开设置"
   await listen("open-settings", () => {
     openSettings();
   });
-});
-
-onUnmounted(() => {
-  if (isWindows.value) {
-    document.removeEventListener("pointerdown", handleDragStart);
-  }
 });
 
 const visibleTabs = computed(() => config.enabledTabs());
@@ -131,7 +94,7 @@ const widgetTabs = computed(() => visibleTabs.value);
   overflow: hidden;
 }
 
-/* Widget 模式 */
+/* Widget 模式：整个 body 可拖，只有交互区(settings-btn / tabs)显式 no-drag */
 .widget-body {
   width: 100%;
   height: 100%;
@@ -148,8 +111,13 @@ const widgetTabs = computed(() => visibleTabs.value);
     0 0 0 0.5px rgba(0, 0, 0, 0.08),
     0 12px 36px rgba(0, 0, 0, 0.32),
     0 4px 12px rgba(0, 0, 0, 0.18);
-  -webkit-app-region: no-drag;
+  -webkit-app-region: drag;
   transition: all var(--duration) var(--ease);
+}
+
+.widget-body :deep(.settings-btn),
+.widget-body :deep(.tabs-strip) {
+  -webkit-app-region: no-drag;
 }
 
 @media (prefers-color-scheme: light) {
@@ -253,7 +221,7 @@ const widgetTabs = computed(() => visibleTabs.value);
   overflow: hidden;
 }
 
-/* 设置模式：完全占据 widget */
+/* 设置模式：完全占据 widget；内部所有元素 no-drag,确保 input 能接收事件 */
 .settings-mode {
   width: 100%;
   height: 100%;
@@ -269,6 +237,10 @@ const widgetTabs = computed(() => visibleTabs.value);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  -webkit-app-region: no-drag;
+}
+
+.settings-mode :deep(*) {
   -webkit-app-region: no-drag;
 }
 
