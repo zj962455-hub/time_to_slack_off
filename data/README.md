@@ -46,7 +46,7 @@ interface WorkdayMakeup {
 - 2026 年：[国务院办公厅关于 2026 年部分节假日安排的通知](https://www.gov.cn/)
 - 2027 年：[国务院办公厅关于 2027 年部分节假日安排的通知](https://www.gov.cn/zhengce/zhengceku/202611/content_7085102.htm)（国办发明电〔2026〕10 号，2026-11-05 发布）
 
-**备用**：holiday.112800.xyz（在线 API，自动 fallback）
+**数据获取方式**：固定手动更新 —— 每年 11 月中下旬从国务院官网取原文，人工整理成 JSON 提交。不用在线 API。
 
 ## 更新流程
 
