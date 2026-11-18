@@ -166,11 +166,8 @@ pnpm tauri build --bundles nsis
    - MSVC v143 生成工具
    - Windows 11 SDK（或 Windows 10 SDK）
 4. 装 WebView2 Runtime（Win 11 自带；Win 10 需要 [下载](https://developer.microsoft.com/microsoft-edge/webview2/)）
-5. 装 Tauri CLI：
-
-```powershell
-cargo install tauri-cli --version "^2.0.0"
-```
+5. Tauri CLI **不用单独装** —— `@tauri-apps/cli` 已在 `devDependencies`，`pnpm tauri` 直接可用。
+   （只有想用 `cargo tauri build` 这种调用方式，才需要 `cargo install tauri-cli --version "^2.0.0"`）
 
 产物：
 - `src-tauri/target/release/time-to-slack-off.exe`（单文件可执行）
