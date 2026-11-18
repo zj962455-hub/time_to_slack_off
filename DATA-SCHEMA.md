@@ -179,8 +179,10 @@ function calculateHourlyRate(
 ## 5. 文件存储位置
 
 **Tauri 应用：**
-- macOS: `~/Library/Application Support/fish-clock/config.json`
-- Windows: `%APPDATA%/fish-clock/config.json`
+- macOS: `~/Library/Application Support/com.zj.time2slackoff/config.json`
+  （目录名来自 `src-tauri/tauri.conf.json` 的 `identifier`，不是产品名）
+- Windows: `%APPDATA%/com.zj.time2slackoff/config.json`
+- Web (PWA): `localStorage['time-to-slack-off-config']`
 
 **Web (PWA)：**
 - `localStorage['time-to-slack-off-config']`
