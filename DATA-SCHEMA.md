@@ -182,7 +182,6 @@ function calculateHourlyRate(
 - macOS: `~/Library/Application Support/com.zj.time2slackoff/config.json`
   （目录名来自 `src-tauri/tauri.conf.json` 的 `identifier`，不是产品名）
 - Windows: `%APPDATA%/com.zj.time2slackoff/config.json`
-- Web (PWA): `localStorage['time-to-slack-off-config']`
 
 **Web (PWA)：**
 - `localStorage['time-to-slack-off-config']`
