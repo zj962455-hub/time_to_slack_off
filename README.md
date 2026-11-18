@@ -28,6 +28,8 @@ time-to-slack-off/
 ├── src-tauri/ # Tauri / Rust 后端
 │ └── tauri.conf.json
 ├── data/
-│ └── holidays-2026.json # 内置节假日数据
+│ ├── holidays-2025.json # 内置节假日数据（2025）
+│ ├── holidays-2026.json # 内置节假日数据（2026）
+│ └── holidays-2027.json # 内置节假日数据（2027）
 └── package.json
 ```

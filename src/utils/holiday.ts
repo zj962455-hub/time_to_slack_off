@@ -9,6 +9,7 @@
 import dayjs from "dayjs";
 import holidays2025 from "../../data/holidays-2025.json";
 import holidays2026 from "../../data/holidays-2026.json";
+import holidays2027 from "../../data/holidays-2027.json";
 
 // ===== 类型定义 =====
 
@@ -44,6 +45,7 @@ export interface HolidayOverride {
 const BUILTIN: Record<number, HolidayYear> = {
   2025: holidays2025 as HolidayYear,
   2026: holidays2026 as HolidayYear,
+  2027: holidays2027 as HolidayYear,
 };
 
 /**
