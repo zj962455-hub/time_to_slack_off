@@ -207,32 +207,67 @@ ls -l src-tauri/target/release/bundle/dmg/     # 必须有最终的 .dmg
 
 ### 5.5 macOS 在无图形界面环境（SSH / CI / 后台任务）打 DMG 会卡住 ⚠️
 
-**已实测。** DMG 打包最后一步要调 AppleScript 让 Finder 排版（图标位置、窗口大小、背景图）。在没有图形交互的进程里，macOS 的自动化权限（TCC）弹不出授权框 → **osascript 永久挂起 → 打包卡死不动**。
+**已实测。** DMG 打包最后一步要调 AppleScript 让 Finder 排版（图标位置、窗口大小、背景图）。
+在没有图形交互的进程里，macOS 的自动化权限（TCC）弹不出授权框 → **osascript 永久挂起 → 打包卡死不动**。
 
 判断是不是这个问题：
 
-~~~
-pgrep -f bundle_dmg.sh     # 有进程挂着就卡在这一步
-~~~
+```bash
+pgrep -fl bundle_dmg.sh     # 有进程挂着就卡在这一步
+pgrep -fl osascript         # 真正挂住的是它
+```
 
-三种解法，按推荐顺序（解法 3 已实测通过：退出码 0，DMG 生成，`hdiutil verify` 校验有效）：
+#### ⭐ 解法 A（推荐，已实测）：CI=true 一条命令出 DMG
 
-1. **在带图形界面的终端里打包**（Terminal.app / iTerm）。第一次会弹「终端想控制 Finder」的授权框，点允许即可，之后不再弹。
-2. **只要 `.app`，不打 DMG**：`pnpm tauri build --bundles app`（最省事，日常自用推荐）
-3. **手动跑 `bundle_dmg.sh` 并加 `--skip-jenkins`**（跳过 Finder 排版，DMG 没有自定义图标位置，但能用）：
+```bash
+CI=true pnpm tauri build --bundles app,dmg
+echo "退出码: $?"        # 实测 = 0
+```
 
-   ~~~
-   cd src-tauri/target/release/bundle/dmg
-   bash ./bundle_dmg.sh --skip-jenkins \
-     --volname 'Time To Slack Off' --icon 'Time To Slack Off.app' 180 170 \
-     --app-drop-link 480 170 --window-size 660 400 \
-     --hide-extension 'Time To Slack Off.app' --volicon ./icon.icns \
-     'Time To Slack Off_0.1.0_aarch64.dmg' '../macos/Time To Slack Off.app'
-   ~~~
+Tauri CLI 会把环境变量 `CI` 当成自己的 `--ci` 布尔开关，
+打包时不再让 bundle_dmg.sh 去跑那段 AppleScript。
 
-   > Tauri 每次构建都会重新解压并覆盖 `bundle_dmg.sh`，所以这条手动命令要在 `.app` 已经构建出来**之后**单独跑。
->
-> 走解法 1（在图形终端里跑完整的 `pnpm tauri build --bundles app,dmg`）时，产物就是标准布局的 DMG，不需要再手动执行上面这条命令。
+产物照样是**规范可用的 DMG**（校验有效、挂载正常、含 .app 与 Applications 软链），
+只是**图标用默认位置摆放**（挂载后没有 .DS_Store），没有自定义背景图 —— 能装、能用、能分发。
+
+> **必须写 `CI=true`，不能写 `CI=1`**：
+> `CI=1 pnpm tauri build` 会直接报
+> `error: invalid value '1' for '--ci'  [possible values: true, false]`，退出码 2 ——
+> 打包根本没开始。直觉会写 1，这是个必踩的坑。
+
+2026-11-19 实测：`CI=true pnpm tauri build --bundles app,dmg` →
+真实退出码 **0**，产出 `Time To Slack Off_0.1.0_aarch64.dmg`，
+`hdiutil verify` 报 **checksum is VALID**，挂载后内容正确，
+`open` 启动无崩溃报告。
+
+#### 解法 B：要标准布局（图标位置 + 背景图）
+
+在**带图形界面的终端**（Terminal.app / iTerm）里跑完整的 `pnpm tauri build --bundles app,dmg`。
+第一次会弹「终端想控制 Finder」的授权框，**点允许**（一次性），之后不再弹。
+
+#### 解法 C：只要 .app，不打 DMG
+
+```bash
+pnpm tauri build --bundles app
+```
+
+最省事，日常自用推荐。
+
+#### 解法 D：手动跑 bundle_dmg.sh 并加 --skip-jenkins
+
+Tauri 每次构建都会重新解压并覆盖 `bundle_dmg.sh`，所以这条手动命令要在
+.app 已经构建出来**之后**单独跑：
+
+```bash
+cd src-tauri/target/release/bundle/dmg
+bash ./bundle_dmg.sh --skip-jenkins \
+  --volname 'Time To Slack Off' --icon 'Time To Slack Off.app' 180 170 \
+  --app-drop-link 480 170 --window-size 660 400 \
+  --hide-extension 'Time To Slack Off.app' --volicon ./icon.icns \
+  'Time To Slack Off_0.1.0_aarch64.dmg' '../macos/Time To Slack Off.app'
+```
+
+> 解法 A 已经覆盖这个场景，且是一条命令；D 仅在需要自定义卷名/图标坐标时用。
 
 ### 5.6 打完包做一次冒烟测试
 
@@ -283,6 +318,28 @@ pnpm tauri build            # 或按 5.2 / 5.3 指定 --bundles
 
 ---
 
+### 6.4 公司电脑一次性验证（可直接粘贴）
+
+在**公司 Windows 电脑**上，把下面整段贴进 PowerShell 即可完成「拉源码 → 重新构建 → 打包」，
+并把最后的验证结果打印出来（这段输出可以直接发回来核对）：
+
+```powershell
+cd $env:USERPROFILE
+if (-not (Test-Path .\time_to_slack_off)) { git clone https://github.com/zj962455-hub/time_to_slack_off.git }
+cd .\time_to_slack_off
+git pull
+pnpm install
+pnpm tauri build --bundles nsis
+Write-Host "打包退出码: $LASTEXITCODE"
+Get-ChildItem .\src-tauri\target\release\bundle\nsis\*.exe | Select-Object Name, Length, LastWriteTime
+```
+
+> **退出码必须是 0**，而且 `nsis` 目录里必须有 `.exe` —— 两件事分开确认。
+> 只看「跑完了」不算数。
+
+装完之后按 6.3 的三条核对（节假日列表出现 2027、12-30 显示元旦、2027-01-31 时薪倍数 1x），
+把结果一并发回来。
+
 ## 七、构建时长（macOS 实测）
 
 | 场景 | 耗时 |
@@ -321,7 +378,9 @@ hdiutil detach "/Volumes/dmg.xxxx" -force     # 有残留挂载时
 | Windows 打开白屏 | 缺 WebView2 Runtime | Win10 单独下载安装 |
 | macOS `rustc not found` | 没装 Rust | <https://rustup.rs> |
 | 端口 1420 被占 | 上个 dev 没关 | macOS: `lsof -ti:1420 \| xargs kill` |
-| DMG 打包卡住不动 | 见 5.5（AppleScript 权限） | 见 5.5 三种解法 |
+| DMG 打包卡住不动 | 见 5.5（AppleScript 权限） | 见 5.5 解法 A：`CI=true pnpm tauri build --bundles app,dmg` |
+| `error: invalid value '1' for '--ci'` | 写了 `CI=1` | 改成 `CI=true`（只接受 true/false） |
+| 给命令加超时，perl 的 alarm 兜底没效果 | exec 会清掉已设的 alarm | 用 `gtimeout`（brew install coreutils），或起后台看门狗进程 |
 | 打包「成功」但没有产物 | 退出码被管道吃掉 | 见 5.4 |
 
 ---
