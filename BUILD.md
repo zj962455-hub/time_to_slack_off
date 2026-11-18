@@ -207,8 +207,13 @@ ls -l src-tauri/target/release/bundle/dmg/     # 必须有最终的 .dmg
 
 ### 5.5 macOS 在无图形界面环境（SSH / CI / 后台任务）打 DMG 会卡住 ⚠️
 
-**已实测。** DMG 打包最后一步要调 AppleScript 让 Finder 排版（图标位置、窗口大小、背景图）。
-在没有图形交互的进程里，macOS 的自动化权限（TCC）弹不出授权框 → **osascript 永久挂起 → 打包卡死不动**。
+**已实测（2026-11-19）。** DMG 打包最后一步要调 AppleScript 让 Finder 排版（图标位置、窗口大小、背景图）。
+在没有图形交互的进程里，macOS 的自动化权限（TCC）授权框弹不出来 → **osascript 一直挂着等授权**，
+最终 bundle_dmg.sh 失败 → **打包失败退出 1**（实测挂了两分多钟才报错，不是立刻失败）。
+
+> ⚠️ **失败会连已有产物一起弄没**（实测）：标准路径失败后，
+> `bundle/dmg/` 目录里原本那份能用的 .dmg **被清掉了**，只剩 bundle_dmg.sh 和 icon.icns。
+> 所以每次标准路径失败后，要重跑下面解法 A 的命令把产物补回来。
 
 判断是不是这个问题：
 
@@ -224,8 +229,8 @@ CI=true pnpm tauri build --bundles app,dmg
 echo "退出码: $?"        # 实测 = 0
 ```
 
-Tauri CLI 会把环境变量 `CI` 当成自己的 `--ci` 布尔开关，
-打包时不再让 bundle_dmg.sh 去跑那段 AppleScript。
+CI=true 时 Tauri CLI 走 CI 分支，打包时不再让 bundle_dmg.sh 去跑那段 AppleScript
+（实测产物里没有 .DS_Store，即图标是默认位置）。
 
 产物照样是**规范可用的 DMG**（校验有效、挂载正常、含 .app 与 Applications 软链），
 只是**图标用默认位置摆放**（挂载后没有 .DS_Store），没有自定义背景图 —— 能装、能用、能分发。
@@ -380,7 +385,7 @@ hdiutil detach "/Volumes/dmg.xxxx" -force     # 有残留挂载时
 | 端口 1420 被占 | 上个 dev 没关 | macOS: `lsof -ti:1420 \| xargs kill` |
 | DMG 打包卡住不动 | 见 5.5（AppleScript 权限） | 见 5.5 解法 A：`CI=true pnpm tauri build --bundles app,dmg` |
 | `error: invalid value '1' for '--ci'` | 写了 `CI=1` | 改成 `CI=true`（只接受 true/false） |
-| 给命令加超时，perl 的 alarm 兜底没效果 | exec 会清掉已设的 alarm | 用 `gtimeout`（brew install coreutils），或起后台看门狗进程 |
+| 想给可能挂死的命令加超时 | — | `perl -e 'alarm 15; exec @ARGV' CMD` **实测有效**（15 秒后 SIGALRM，退出码 142）；也可用 `gtimeout`（brew install coreutils） |
 | 打包「成功」但没有产物 | 退出码被管道吃掉 | 见 5.4 |
 
 ---
